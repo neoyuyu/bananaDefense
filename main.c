@@ -43,9 +43,9 @@ int deveMover(int x, int y, int dx, int dy)
 	return 1;
 }
 
-int deslocaInimigo()
+void deslocaInimigo(int *x, int *y)
 {
-	// srand(time(NULL)); // seed atrelada ao tempo do computador, necessario aqui?
+	// srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar
 
 	// Logica para fazer objeto inimigo se movimentar
 	// Gera um aleatorio entre 0 e 2
@@ -55,7 +55,36 @@ int deslocaInimigo()
 	int numeroRandom = deslocaRandom - 1;
 	printf("%d", numeroRandom);
 
-	return numeroRandom;
+	// Deslocamento do inimigo
+	int desIniX = numeroRandom;
+	int desIniY = numeroRandom;
+
+	int xa = *x;
+	int ya = *y;
+
+	int *ky = y;
+	int *kx = x;
+
+	// Parar o inimigo caso ele bata na parede
+	if (!deveMover(xa, ya, desIniX, desIniY))
+	{
+
+		printf("\nFLAG LAFGAFA A SD");
+		int it = 25; // Iterador para parar quadrado inimigo
+		printf("%d", it);
+
+		do
+		{
+			move(0, 0, *x, *y);
+
+			it--;
+
+			printf("%d", it);
+
+		} while (it > 0);
+	}
+	else
+		move(desIniX, desIniY, &kx, &ky);
 }
 
 int main(void)
@@ -109,26 +138,8 @@ int main(void)
 				move(0, 1, &posx, &posy);
 		}
 
-		// Deslocamento do inimigo
+		deslocaInimigo(&posx2, &posy2);
 
-		int desIniX = deslocaInimigo();
-		int desIniY = deslocaInimigo();
-
-		// Parar o inimigo caso ele bata na parede
-		if (!deveMover(posx2, posy2, desIniX, desIniY))
-		{
-			int it = 30; // Iterador para parar quadrado inimigo
-
-			do
-			{
-				move(0, 0, &posx2, &posy2);
-
-				it--;
-
-			} while (it > 0);
-		}
-		else
-			move(desIniX, desIniY, &posx2, &posy2);
 		BeginDrawing(); // Inicia o ambiente de desenho na tela
 
 		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
