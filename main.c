@@ -13,6 +13,7 @@
 #define BACKGROUND_COLOR \
 	(Color) { 60, 3, 32, 100 } // Light Gray
 
+// Funcao que move o objeto
 void move(int dx, int dy, int *x, int *y)
 {
 	if (dx == 1)
@@ -28,31 +29,37 @@ void move(int dx, int dy, int *x, int *y)
 		*y -= 20;
 }
 
+// Funcao que verifica se o objeto deve mover
 int deveMover(int x, int y, int dx, int dy)
 {
 
-	// int deslocaRandom = (rand() % 2) * -1 ; //Gera aleatorio entre -1 e 1
-
-	if (dx == 1 && x + 20 > 800 - LADO)
+	// Verifica eixo x
+	if ((dx == 1 && x + 20 > 800 - LADO) || (dx == -1 && x - 20 < 0))
 		return 0;
 
-	if (dx == -1 && x - 20 < 0)
-		return 0;
-
-	printf("\n y eh %d", y);
-	if (dy == 1 && y + 20 > 800 - 20)
-		return 0;
-
-	if (dy == -1 && y - 20 <= 0)
+	if ((dy == 1 && y + 20 > 800 - LADO) || (dy == -1 && y - 20 < 0))
 		return 0;
 
 	return 1;
 }
 
+int deslocaInimigo()
+{
+	// srand(time(NULL)); // seed atrelada ao tempo do computador, necessario aqui?
+
+	// Logica para fazer objeto inimigo se movimentar
+	// Gera um aleatorio entre 0 e 2
+	int deslocaRandom = rand() % 3;
+
+	// Mapeia o resultado desse número entre -1 e 1 quando subtrai 1
+	int numeroRandom = deslocaRandom - 1;
+	printf("%d", numeroRandom);
+
+	return numeroRandom;
+}
+
 int main(void)
 {
-
-	// bool ehDentroTela = true;
 
 	srand(time(NULL)); // seed atrelada ao tempo do computador
 
@@ -62,13 +69,9 @@ int main(void)
 	int posx = posRandom;
 	int posy = posRandom;
 
-	// //Eixos de locomoção do quadrado, iniciar em posicao randomica quadrado 2
-	// int posx2 = posRandom;
-	// int posy2 = posRandom;
-
-	// Ponteiros para deslocamento
-	// int *pontX = posx;
-	// int *pontY = posy;
+	// Eixos de locomoção do quadrado, iniciar em posicao 400, 400.
+	int posx2 = 400;
+	int posy2 = 400;
 
 	// Inicializacoes rayLib
 	InitWindow(LARGURA, ALTURA, "O Jogo"); // Inicializa janela, com certo tamanho e titulo
@@ -84,14 +87,11 @@ int main(void)
 		// Trata entrada do usuario e atualiza estado do jogo
 		if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT)) // Verifica tecla pressionada e a tecla segurada
 		{
-			if (deveMover(posx, posy, 1, 0) == 1)
-			{
+			if (deveMover(posx, posy, 1, 0))
 				move(1, 0, &posx, &posy);
-			}
 		}
 
 		if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT))
-
 		{
 			if (deveMover(posx, posy, -1, 0))
 				move(-1, 0, &posx, &posy);
@@ -109,13 +109,33 @@ int main(void)
 				move(0, 1, &posx, &posy);
 		}
 
+		// Deslocamento do inimigo
+
+		int desIniX = deslocaInimigo();
+		int desIniY = deslocaInimigo();
+
+		// Parar o inimigo caso ele bata na parede
+		if (!deveMover(posx2, posy2, desIniX, desIniY))
+		{
+			int it = 30; // Iterador para parar quadrado inimigo
+
+			do
+			{
+				move(0, 0, &posx2, &posy2);
+
+				it--;
+
+			} while (it > 0);
+		}
+		else
+			move(desIniX, desIniY, &posx2, &posy2);
 		BeginDrawing(); // Inicia o ambiente de desenho na tela
 
 		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
 		DrawRectangle(posx, posy, LADO, LADO, GREEN); // Posição do quadrado 1
 
-		// DrawRectangle(posx, posy, LADO, LADO, RED);	//Posição do quadrado 2
+		DrawRectangle(posx2, posy2, LADO, LADO, RED); // Posição do quadrado 2
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}
