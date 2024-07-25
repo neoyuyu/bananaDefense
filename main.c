@@ -51,46 +51,63 @@ void deslocaInimigo(int *x, int *y)
 	// Gera um aleatorio entre 0 e 2
 	int deslocaRandom = rand() % 3;
 
+	int deslocaRandom2 = rand() % 3;
+
 	// Mapeia o resultado desse número entre -1 e 1 quando subtrai 1
 	int numeroRandom = deslocaRandom - 1;
+	int numeroRandom2 = deslocaRandom2 - 1;
 	printf("%d", numeroRandom);
 
 	// Deslocamento do inimigo
 	int desIniX = numeroRandom;
-	int desIniY = numeroRandom;
-
-	int xa = *x;
-	int ya = *y;
-
-	int *ky = y;
-	int *kx = x;
+	int desIniY = numeroRandom2;
 
 	// Parar o inimigo caso ele bata na parede
-	if (!deveMover(xa, ya, desIniX, desIniY))
+	if (!deveMover(*x, *y, desIniX, desIniY))
 	{
 
 		printf("\nFLAG LAFGAFA A SD");
-		int it = 25; // Iterador para parar quadrado inimigo
+		int it = 3000; // Iterador para parar quadrado inimigo
 		printf("%d", it);
 
 		do
 		{
-			move(0, 0, *x, *y);
+			move(0, 0, x, y);
 
 			it--;
 
 			printf("%d", it);
 
 		} while (it > 0);
+
+		if (desIniX == 1 || desIniX == -1)
+		{
+			do
+			{
+				desIniX = (rand() % 3) - 1;
+
+			} while (desIniX == 1 && desIniX == -1);
+		}
+
+		if (desIniY == 1 || desIniY == -1)
+		{
+			do
+			{
+				desIniY = (rand() % 3) - 1;
+
+			} while (desIniY == 1 && desIniY == -1);
+		}
+
+		move(desIniX, desIniY, x, y);
 	}
 	else
-		move(desIniX, desIniY, &kx, &ky);
+		move(desIniX, desIniY, x, y);
 }
 
 int main(void)
 {
 
-	srand(time(NULL)); // seed atrelada ao tempo do computador
+	// srand(time(NULL)); // seed atrelada ao tempo do computador
 
 	int posRandom = (rand() % 40) * 20; // Posição aleatoria do quadrado multiplo de 20, 0 - 800
 
