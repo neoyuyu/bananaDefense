@@ -108,12 +108,13 @@ int main(void)
 {
 
 	// srand(time(NULL)); // seed atrelada ao tempo do computador
-
 	int posRandom = (rand() % 40) * 20; // Posição aleatoria do quadrado multiplo de 20, 0 - 800
 
 	// Eixos de locomoção do quadrado, iniciar em posicao randomica quadrado 1
 	int posx = posRandom;
 	int posy = posRandom;
+
+	// testeseadwadawd
 
 	// Eixos de locomoção do quadrado, iniciar em posicao 400, 400.
 	int posx2 = 400;
