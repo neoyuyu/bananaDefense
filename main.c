@@ -10,10 +10,36 @@
 #define ALTURA 800
 #define M_TAMANHO 30
 #define LADO 20
+#define MAX_INIMIGOS 10
 #define BACKGROUND_COLOR \
 	(Color) { 60, 3, 32, 100 } // Light Gray
 
-// Funcao que move o objeto
+// Estruturas definicao
+
+// Estrutura StructPlayer representa o jogador do jogo
+typedef struct structPlayer
+{
+
+	int dx; // Deslocamento posicao x
+	int x;	// Coordenada x no mapa
+
+	int dy; // Deslocamento posicao y
+	int y;	// Coordenada y no mapa
+} TIPO_PLAYER;
+
+// Estrutura StructInimigo representa os inimigos do jogo
+typedef struct structInimigo
+{
+
+	int dx; // Deslocamento posicao x
+	int x;	// Coordenada x no mapa
+
+	int dy; // Deslocamento posicao y
+	int y;	// Coordenada y no mapa
+
+} TIPO_INIMIGO;
+
+// Funcao que move a estrutura recebida
 void move(int dx, int dy, int *x, int *y)
 {
 	if (dx == 1)
@@ -29,77 +55,41 @@ void move(int dx, int dy, int *x, int *y)
 		*y -= 20;
 }
 
-// Funcao que verifica se o objeto deve mover
+// Funcao que verifica se a estrutura deve mover
 int deveMover(int x, int y, int dx, int dy)
 {
 
-	// Verifica eixo x
-	if ((dx == 1 && x + 20 > 800 - LADO) || (dx == -1 && x - 20 < 0))
+	// Verifica eixo x, está fora dos limites (LARGURA X ALTURA)
+	if ((dx == 1 && x + LADO > LARGURA - LADO) || (dx == -1 && x - LADO < 0))
 		return 0;
-
-	if ((dy == 1 && y + 20 > 800 - LADO) || (dy == -1 && y - 20 < 0))
+	// Verifica eixo y, está fora dos limites (LARGURA X ALTURA)
+	if ((dy == 1 && y + LADO > ALTURA - LADO) || (dy == -1 && y - LADO < 0))
 		return 0;
 
 	return 1;
 }
 
-void deslocaInimigo(int *x, int *y)
+// Logica para fazer estrutura inimigo se movimentar
+int moveInimigo(TIPO_INIMIGO i)
 {
 	// srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar
 
-	// Logica para fazer objeto inimigo se movimentar
 	// Gera um aleatorio entre 0 e 2
 	int deslocaRandom = rand() % 3;
 
-	int deslocaRandom2 = rand() % 3;
-
 	// Mapeia o resultado desse número entre -1 e 1 quando subtrai 1
 	int numeroRandom = deslocaRandom - 1;
-	int numeroRandom2 = deslocaRandom2 - 1;
 	printf("%d", numeroRandom);
 
-	// Deslocamento do inimigo
+	// Variaveis de deslocamento do inimigo
 	int desIniX = numeroRandom;
-	int desIniY = numeroRandom2;
+	int desIniY = numeroRandom;
 
 	// Parar o inimigo caso ele bata na parede
 	if (!deveMover(*x, *y, desIniX, desIniY))
 	{
-
-		printf("\nFLAG LAFGAFA A SD");
-		int it = 3000; // Iterador para parar quadrado inimigo
-		printf("%d", it);
-
-		do
-		{
-			move(0, 0, x, y);
-
-			it--;
-
-			printf("%d", it);
-
-		} while (it > 0);
-
-		if (desIniX == 1 || desIniX == -1)
-		{
-			do
-			{
-				desIniX = (rand() % 3) - 1;
-
-			} while (desIniX == 1 && desIniX == -1);
-		}
-
-		if (desIniY == 1 || desIniY == -1)
-		{
-			do
-			{
-				desIniY = (rand() % 3) - 1;
-
-			} while (desIniY == 1 && desIniY == -1);
-		}
-
-		move(desIniX, desIniY, x, y);
 	}
+
 	else
 		move(desIniX, desIniY, x, y);
 }
@@ -107,23 +97,34 @@ void deslocaInimigo(int *x, int *y)
 int main(void)
 {
 
+	// Inicializacoes variaveis e estruturas
+
+	TIPO_INIMIGO inimigo[MAX_INIMIGOS]; // Inicializacao do vetor de inimigos
+
+	TIPO_PLAYER player; // Inicialização da estrutura player
+
 	// srand(time(NULL)); // seed atrelada ao tempo do computador
-	int posRandom = (rand() % 40) * 20; // Posição aleatoria do quadrado multiplo de 20, 0 - 800
+
+	int posRandom = (rand() % 40) * LADO; // Posição aleatoria do quadrado multiplo de 20, 0 - 800
 
 	// Eixos de locomoção do quadrado, iniciar em posicao randomica quadrado 1
 	int posx = posRandom;
 	int posy = posRandom;
 
-	// testeseadwadawd
+	int posRandom2;
 
-	// Eixos de locomoção do quadrado, iniciar em posicao 400, 400.
-	int posx2 = 400;
-	int posy2 = 400;
+	for (int i = 0; i < MAX_INIMIGOS; i++)
+	{
+
+		posRandom2 = (rand() % 40) * LADO; // Posição aleatoria do quadrado multiplo de 20, 0 - 800
+		printf("\n %d", posRandom2);
+		inimigo[i].x, inimigo[i].y = posRandom2;
+	}
 
 	// Inicializacoes rayLib
 	InitWindow(LARGURA, ALTURA, "O Jogo"); // Inicializa janela, com certo tamanho e titulo
-	centerWindow(LARGURA, ALTURA);
-	SetTargetFPS(60); // Ajusta a execucao do jogo para 60 frames por segundo
+	centerWindow(LARGURA, ALTURA);		   // Centraliza a janela do jogo ao centro da tela
+	SetTargetFPS(60);					   // Ajusta a execucao do jogo para 60 frames por segundo
 
 	// Laco principal do jogo
 	while (!WindowShouldClose()) // Detect window close button or ESC key
@@ -156,15 +157,20 @@ int main(void)
 				move(0, 1, &posx, &posy);
 		}
 
-		deslocaInimigo(&posx2, &posy2);
+		// deslocaInimigo(&posx, &posy);
 
 		BeginDrawing(); // Inicia o ambiente de desenho na tela
 
 		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
-		DrawRectangle(posx, posy, LADO, LADO, GREEN); // Posição do quadrado 1
+		// Inicializacao dos inimigos e mostrar na tela sua posicao aleatoria
+		for (int i = 0; i < MAX_INIMIGOS; i++)
+		{
 
-		DrawRectangle(posx2, posy2, LADO, LADO, RED); // Posição do quadrado 2
+			DrawRectangle(inimigo[i].x, inimigo[i].y, LADO, LADO, ORANGE); // Quadrados inimigos
+		}
+
+		DrawRectangle(posx, posy, LADO, LADO, GREEN); // Posição do quadrado 1, player
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}
