@@ -36,7 +36,6 @@ int main(void)
 		posicaoAleatoriaInimigo(&inimigo[i]); // Inicializacao do inimigo em posicao aleatoria
 		sentidoAleatorioInimigo(&inimigo[i]); // Inicalizacao do primeiro deslocamento do inimigo
 	}
-
 	// Laco principal do jogo
 	while (!WindowShouldClose()) // Detectar o botao de fechar janela ou a tecla ESC
 	{
