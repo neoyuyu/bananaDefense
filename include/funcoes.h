@@ -17,14 +17,18 @@
 
 // Estruturas definicao:
 
+typedef struct{
+
+    int x, y;               //posições
+    int dx, dy;             //deslocamentos
+
+} COORDENADAS;
+
 // Estrutura StructPlayer representa o jogador do jogo.
 typedef struct
 {
 
-    int dx; // Deslocamento no sentido x
-    int x;  // Coordenada x no mapa
-    int dy; // Deslocamento no sentido y
-    int y;  // Coordenada y no mapa
+    COORDENADAS coordPlayer;
 
 } TIPO_PLAYER;
 
@@ -32,10 +36,7 @@ typedef struct
 typedef struct
 {
 
-    int dx;       // Deslocamento no sentido x
-    int x;        // Coordenada x no mapa
-    int dy;       // Deslocamento no sentido y
-    int y;        // Coordenada y no mapa
+    COORDENADAS coordInimigo;
     double timer; // Timer para movimentacao
 
 } TIPO_INIMIGO;
@@ -60,8 +61,8 @@ void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
     }
 
     // Define o deslocameto aleatorio do inimigo
-    inimigo->dx = numeroRandomDx;
-    inimigo->dy = numeroRandomDy;
+    inimigo->coordInimigo.dx = numeroRandomDx;
+    inimigo->coordInimigo.dx = numeroRandomDy;
 }
 
 // Funcao que centraliza a janela ao centro da tela
@@ -83,7 +84,7 @@ int ehColisaoInimiga(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
     {
         for (int j = i + 1; j < MAX_INIMIGOS; j++)
         {
-            if (inimigo[i].x == inimigo[j].x && inimigo[i].y == inimigo[j].y)
+            if (inimigo[i].coordInimigo.x == inimigo[j].coordInimigo.x && inimigo[i].coordInimigo.y == inimigo[j].coordInimigo.y)
             {
                 printf("\n Eh coli entre i %d e j %d", i, j);
                 return 1; // Retorna 1 indicando que houve colisao
@@ -99,8 +100,8 @@ void posicaoInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
 {
 
     // Define a posicao do inimigo
-    inimigo->x = 300;
-    inimigo->y = 300;
+    inimigo->coordInimigo.x = 300;
+    inimigo->coordInimigo.y = 300;
 }
 
 // Funcao que inicializa inimigos
@@ -124,13 +125,10 @@ void inicializaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
 // Funcao que inicializa player
 void inicializaPlayer(TIPO_PLAYER *player)
 {
-    for (int i = 0; i < MAX_INIMIGOS; i++)
-    {
-        player->x = 300;
-        player->y = 300;
-        player->dx = 0;
-        player->dy = 0;
-    }
+    player->coordPlayer.x = LARGURA/2;
+    player->coordPlayer.y = LARGURA/2;
+    player->coordPlayer.dx = 0;
+    player->coordPlayer.dx = 0;
 }
 
 // Funcao que verifica se a estrutura deve mover.
@@ -212,17 +210,17 @@ int moveInimigo(TIPO_INIMIGO *inimigo)
         // Atualiza o tempo do último movimento
         inimigo->timer = tempoAtual;
 
-        if (inimigo->dx == 1)
-            inimigo->x += LADO; // Deslocamento direta
+        if (inimigo->coordInimigo.dx == 1)
+            inimigo->coordInimigo.x += LADO; // Deslocamento direta
 
-        if (inimigo->dx == -1)
-            inimigo->x -= LADO; // Deslocamento esquerda
+        if (inimigo->coordInimigo.dx == -1)
+            inimigo->coordInimigo.x -= LADO; // Deslocamento esquerda
 
-        if (inimigo->dy == 1)
-            inimigo->y += LADO; // Deslocamento baixo
+        if (inimigo->coordInimigo.dy == 1)
+            inimigo->coordInimigo.y += LADO; // Deslocamento baixo
 
-        if (inimigo->dy == -1)
-            inimigo->y -= LADO; // Deslocamento cima
+        if (inimigo->coordInimigo.dy == -1)
+            inimigo->coordInimigo.y -= LADO; // Deslocamento cima
 
         return 1; // Retorna 1 indicando que o timer foi zerado e inimigo moveu
     }
@@ -236,13 +234,13 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo)
 
     int dyInicial, dxInicial;
 
-    dxInicial = inimigo->dx;
-    dyInicial = inimigo->dy;
+    dxInicial = inimigo->coordInimigo.dx;
+    dyInicial = inimigo->coordInimigo.dy;
 
     // Randomiza o sentido enquanto os valores forem iguais ao inicial
     do
     {
         sentidoAleatorioInimigo(inimigo);
 
-    } while (inimigo->dx == dxInicial && inimigo->dy == dyInicial);
+    } while (inimigo->coordInimigo.dx == dxInicial && inimigo->coordInimigo.dy == dyInicial);
 }
