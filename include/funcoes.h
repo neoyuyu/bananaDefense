@@ -1,46 +1,70 @@
 // Este header contem as funcoes para o programa principal, separar por tipo posteriormente?
-
 #include "raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <stdbool.h>
 #include <time.h>
 // Cria as constantes (macro definicoes) para uso no programa geral
-#define LARGURA 800
-#define ALTURA 800
+#define LARGURA 600
+#define ALTURA 600
 #define M_TAMANHO 30
+#define INIMIGO_DELAY 2 // Delay para movimentacao do inimigo em ms
 #define LADO 20
-#define MAX_INIMIGOS 5
+#define MAX_INIMIGOS 10
 #define BACKGROUND_COLOR \
-    (Color) { 60, 3, 32, 100 } // Light Gray
+    (Color) { 60, 3, 32, 100 } // Cor Vinho
 
 // Estruturas definicao:
 
 // Estrutura StructPlayer representa o jogador do jogo.
-typedef struct structPlayer
+typedef struct
 {
 
     int dx; // Deslocamento no sentido x
     int x;  // Coordenada x no mapa
-
     int dy; // Deslocamento no sentido y
     int y;  // Coordenada y no mapa
 
 } TIPO_PLAYER;
 
 // Estrutura StructInimigo representa os inimigos do jogo.
-typedef struct structInimigo
+typedef struct
 {
 
-    int dx; // Deslocamento no sentido x
-    int x;  // Coordenada x no mapa
-
-    int dy; // Deslocamento no sentido y
-    int y;  // Coordenada y no mapa
+    int dx;       // Deslocamento no sentido x
+    int x;        // Coordenada x no mapa
+    int dy;       // Deslocamento no sentido y
+    int y;        // Coordenada y no mapa
+    double timer; // Timer para movimentacao
 
 } TIPO_INIMIGO;
 
-// Esta funcao centraliza a janela ao centro da tela
+// Funcao que define o sentido aleatorio do inimigo
+void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
+{
+    // Gerar sentido aleatorio:
+
+    // srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar.
+
+    // Ao subtrair -1 de um numero aleatorio entre 0 e 2, gera um numero entre -1 e 1
+    // Variaveis contendo o sentido de deslocamento do inimigo.
+    int numeroRandomDx = (rand() % 3) - 1; // Numero entre -1 e 1
+    int numeroRandomDy = (rand() % 3) - 1; // Numero entre -1 e 1
+
+    // Se o numeroRandom for 0, deve-se retirar outro numero aleatorio
+    while (numeroRandomDx == 0 && numeroRandomDy == 0)
+    {
+        numeroRandomDx = (rand() % 3) - 1;
+        numeroRandomDy = (rand() % 3) - 1;
+    }
+
+    // Define o deslocameto aleatorio do inimigo
+    inimigo->dx = numeroRandomDx;
+    inimigo->dy = numeroRandomDy;
+}
+
+// Funcao que centraliza a janela ao centro da tela
 void centerWindow(float windowWidth, float windowHeight)
 {
     int monitor = GetCurrentMonitor();             // Captura o monitor usado
@@ -49,6 +73,64 @@ void centerWindow(float windowWidth, float windowHeight)
 
     //  Define a posição da janela (window) na tela
     SetWindowPosition((int)(monitorWidth / 2) - (int)(windowWidth / 2), (int)(monitorHeight / 2) - (int)(windowHeight / 2));
+}
+
+// Funcao que verifica se houve colisao entre inimigos
+int ehColisaoInimiga(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
+{
+
+    for (int i = 0; i < MAX_INIMIGOS; i++)
+    {
+        for (int j = i + 1; j < MAX_INIMIGOS; j++)
+        {
+            if (inimigo[i].x == inimigo[j].x && inimigo[i].y == inimigo[j].y)
+            {
+                printf("\n Eh coli entre i %d e j %d", i, j);
+                return 1; // Retorna 1 indicando que houve colisao
+            }
+            else
+                return 0; // Retorna 0 indicando que nao houve colisao
+        }
+    }
+}
+
+// Funcao que define a posicao aleatoria do inimigo
+void posicaoInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
+{
+
+    // Define a posicao do inimigo
+    inimigo->x = 300;
+    inimigo->y = 300;
+}
+
+// Funcao que inicializa inimigos
+void inicializaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
+{
+
+    double tempoAtual = GetTime(); // Tempo atual
+
+    for (int i = 0; i < MAX_INIMIGOS; i++)
+    {
+
+        posicaoInimigo(&inimigo[i]);          // Inicializa posicao aleatoria do inimigo
+        sentidoAleatorioInimigo(&inimigo[i]); // Inicializa sentido aleatorio do inimigo
+        inimigo[i].timer = 0;                 // Inicializa timer
+
+        // Atualiza o tempo do último movimento
+        inimigo->timer = tempoAtual;
+    }
+}
+
+// Funcao que inicializa player
+void inicializaPlayer(TIPO_PLAYER *player)
+{
+    for (int i = 0; i < MAX_INIMIGOS; i++)
+    {
+        player->x = 300;
+        player->y = 300;
+        player->dx = 0;
+        player->dy = 0;
+    }
 }
 
 // Funcao que verifica se a estrutura deve mover.
@@ -80,7 +162,7 @@ void move(int dx, int dy, int *x, int *y)
     if (dy == -1) // Deslocamento cima
         *y -= LADO;
 }
-// Trata entrada do usuario e move o jogador
+// Funcao que trata controle do jogador
 void controleJogador(int *px, int *py)
 {
 
@@ -110,76 +192,47 @@ void controleJogador(int *px, int *py)
     }
 }
 
-// Logica para fazer estrutura inimigo se movimentar com base em valores aleatorios.
+// Funcao que move o inimigo
 int moveInimigo(TIPO_INIMIGO *inimigo)
 {
 
-    // Verifica se o inimigo nao deve mover na direcao aleatoria informada e retorna 0.
-    if (!deveMover(inimigo->x, inimigo->y, inimigo->dx, inimigo->dy))
+    // Tempo atual
+    double tempoAtual = GetTime();
+
+    // // Verifica se o inimigo nao deve mover na direcao aleatoria informada
+    // if (!deveMover(inimigo->x, inimigo->y, inimigo->dx, inimigo->dy))
+    // {
+    //     return 0; // Retorna 0 indicando que o inimigo não se moveu
+    // }
+
+    // Se não, se timer for válido.
+
+    if (tempoAtual - inimigo->timer >= INIMIGO_DELAY)
     {
-        return 0;
-    }
-    // Se nao, desloca o inimigo.
-    else
-    {
+        // Atualiza o tempo do último movimento
+        inimigo->timer = tempoAtual;
+
         if (inimigo->dx == 1)
-            inimigo->x += 20; // Deslocamento direta
+            inimigo->x += LADO; // Deslocamento direta
 
         if (inimigo->dx == -1)
-            inimigo->x -= 20; // Deslocamento esquerda
+            inimigo->x -= LADO; // Deslocamento esquerda
 
         if (inimigo->dy == 1)
-            inimigo->y += 20; // Deslocamento baixo
+            inimigo->y += LADO; // Deslocamento baixo
 
         if (inimigo->dy == -1)
-            inimigo->y -= 20; // Deslocamento cima
+            inimigo->y -= LADO; // Deslocamento cima
 
-        return 1;
-    }
-}
-
-// Inicializar a estrutura inimigo em posicao aleatoria
-void posicaoAleatoriaInimigo(TIPO_INIMIGO *inimigo)
-{
-    srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar.
-
-    // Gerar um número aleatório no intervalo de 0 a 38
-    int random = rand() % 39;
-
-    // Calcular o múltiplo de 20 correspondente
-    int randomMultiplo = (random * 20) + 20;
-
-    inimigo->x, inimigo->y = randomMultiplo; // Define a posicao aleatoria do inimigo
-}
-
-// Inicializar a estrutura inimigo em sentido aleatorio
-void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
-{
-    // Gerar sentido aleatorio:
-
-    // srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar.
-
-    // Ao subtrair -1 de um numero aleatorio entre 0 e 2, gera um numero entre -1 e 1
-    // Variaveis contendo o sentido de deslocamento do inimigo.
-    int numeroRandomDx = (rand() % 3) - 1; // Numero entre -1 e 1
-    int numeroRandomDy = (rand() % 3) - 1; // Numero entre -1 e 1
-
-    // Se o numeroRandom for 0, deve-se retirar outro numero aleatorio
-    while (numeroRandomDx == 0 && numeroRandomDy == 0)
-    {
-        numeroRandomDx = (rand() % 3) - 1;
-        numeroRandomDy = (rand() % 3) - 1;
+        return 1; // Retorna 1 indicando que o timer foi zerado e inimigo moveu
     }
 
-    // Define o deslocameto aleatorio do inimigo
-    inimigo->dx = numeroRandomDx;
-    inimigo->dy = numeroRandomDy;
+    return 0; // Retorna 0 indicando que o inimigo não se moveu
 }
 
-// Mover inimigo em outra direcao
+// Funcao que redefine o deslocamento do inimigo
 void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo)
 {
-    // srand(time(NULL));
 
     int dyInicial, dxInicial;
 
@@ -191,12 +244,5 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo)
     {
         sentidoAleatorioInimigo(inimigo);
 
-    } while (inimigo->dx == dxInicial || inimigo->dy == dyInicial);
-
-    // moveInimigo(inimigo);
-}
-
-// Verifica se ha colisao entre os inimigos
-int ehColisaoInimiga(TIPO_INIMIGO *inimigo)
-{
+    } while (inimigo->dx == dxInicial && inimigo->dy == dyInicial);
 }
