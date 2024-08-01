@@ -7,7 +7,7 @@
 
 int main(void)
 {
-	srand(time(NULL));
+	srand(time(NULL)); //Inicializa a semente dinamicamente
 	// Inicializar o player
 	TIPO_PLAYER player;		   // Elemento da estrutura structPlayer
 	inicializaPlayer(&player); // Inicializar o jogador
@@ -30,23 +30,18 @@ int main(void)
 
 		inicializaInimigo(inimigo);
 
-		controleJogador(&player.x, &player.y); // Verificacao dos controles do jogador
+		controleJogador(&player.coordPlayer.x, &player.coordPlayer.y); // Verificacao dos controles do jogador
 
 		// ehColisaoInimiga(inimigo); // Verifica o arranjo de inimigos para checar colisoes no inicio do jogo
-
-		// Mostrar informacoes visuais para o usuario:
-		BeginDrawing(); // Inicia o ambiente de desenho na tela
-
-		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
 		for (int i = 0; i < MAX_INIMIGOS; i++)
 		{
 
 			// Verifica se o inimigo pode se mover e desenha na tela
-			if (deveMover(inimigo[i].x, inimigo[i].y, inimigo[i].dx, inimigo[i].dy))
+			if (deveMover(inimigo[i].coordInimigo.x, inimigo[i].coordInimigo.y, inimigo[i].coordInimigo.dx, inimigo[i].coordInimigo.dy))
 			{
 				moveInimigo(&inimigo[i]);
-				DrawRectangle(inimigo[i].x, inimigo[i].y, LADO, LADO, ORANGE); // Primeira posicao do inimigo desenhada
+				DrawRectangle(inimigo[i].coordInimigo.x, inimigo[i].coordInimigo.y, LADO, LADO, ORANGE); // Primeira posicao do inimigo desenhada
 			}
 
 			else
@@ -58,7 +53,12 @@ int main(void)
 
 		// sentidoAleatorioInimigo(&inimigo[i]);	// Inicializa o sentido aleatorio do inimigo, não é necessário
 
-		DrawRectangle(player.x, player.y, LADO, LADO, GREEN); // Posição do quadrado player
+		// Mostrar informacoes visuais para o usuario:
+		BeginDrawing(); // Inicia o ambiente de desenho na tela
+
+		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
+
+		DrawRectangle(player.coordPlayer.x, player.coordPlayer.y, LADO, LADO, GREEN); // Posição do quadrado player
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}
