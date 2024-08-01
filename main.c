@@ -13,7 +13,11 @@ int main(void)
 	inicializaPlayer(&player); // Inicializar o jogador
 
 	// Inicializar os inimigos
-	TIPO_INIMIGO inimigo[MAX_INIMIGOS] = {0}; // Elemento da estrutura structInimigo
+	TIPO_INIMIGO inimigo[MAX_INIMIGOS]; // Elemento da estrutura structInimigo
+	for (int i = 0; i < MAX_INIMIGOS; i++)
+		{
+			inicializaInimigo(&inimigo[i]);
+		}
 
 	// Inicializacoes rayLib
 	InitWindow(LARGURA, ALTURA, "O Jogo"); // Inicializa janela com certo tamanho e titulo
@@ -26,25 +30,15 @@ int main(void)
 	while (!WindowShouldClose()) // Detectar o botao de fechar janela ou a tecla ESC
 	{
 
-		// Atualiza a representacao visual a partir do estado do jogo:
+		controleJogador(&player); // Verificacao dos controles do jogador
 
-		inicializaInimigo(inimigo);
-
-		controleJogador(&player.coordPlayer.x, &player.coordPlayer.y); // Verificacao dos controles do jogador
-
-		// ehColisaoInimiga(inimigo); // Verifica o arranjo de inimigos para checar colisoes no inicio do jogo
+		ehColisaoInimiga(inimigo); // Verifica o arranjo de inimigos para checar colisoes no inicio do jogo
 
 		for (int i = 0; i < MAX_INIMIGOS; i++)
 		{
 
 			// Verifica se o inimigo pode se mover e desenha na tela
-			if (deveMover(inimigo[i].coordInimigo.x, inimigo[i].coordInimigo.y, inimigo[i].coordInimigo.dx, inimigo[i].coordInimigo.dy))
-			{
-				moveInimigo(&inimigo[i]);
-				DrawRectangle(inimigo[i].coordInimigo.x, inimigo[i].coordInimigo.y, LADO, LADO, ORANGE); // Primeira posicao do inimigo desenhada
-			}
-
-			else
+			if (!moveInimigo(&inimigo[i]))
 			{
 				redefineDeslocamentoInimigo(&inimigo[i]);
 				moveInimigo(&inimigo[i]);
@@ -58,7 +52,10 @@ int main(void)
 
 		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
-		DrawRectangle(player.coordPlayer.x, player.coordPlayer.y, LADO, LADO, GREEN); // Posição do quadrado player
+		DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, GREEN); // Posição do quadrado player
+		for (int i=0; i<MAX_INIMIGOS; i++){
+			DrawRectangle(inimigo[i].coordInimigo.x * LADO, inimigo[i].coordInimigo.y * LADO, LADO, LADO, ORANGE); // Primeira posicao do inimigo desenhada
+		}
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}

@@ -9,7 +9,7 @@
 #define LARGURA 600
 #define ALTURA 600
 #define M_TAMANHO 30
-#define INIMIGO_DELAY 2 // Delay para movimentacao do inimigo em ms
+#define INIMIGO_DELAY 0.5 // Delay para movimentacao do inimigo em ms
 #define LADO 20
 #define MAX_INIMIGOS 10
 #define BACKGROUND_COLOR \
@@ -29,6 +29,7 @@ typedef struct
 {
 
     COORDENADAS coordPlayer;
+    int cor;
 
 } TIPO_PLAYER;
 
@@ -46,7 +47,7 @@ void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
 {
     // Gerar sentido aleatorio:
 
-    // srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar.
+    //srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar.
 
     // Ao subtrair -1 de um numero aleatorio entre 0 e 2, gera um numero entre -1 e 1
     // Variaveis contendo o sentido de deslocamento do inimigo.
@@ -62,7 +63,7 @@ void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
 
     // Define o deslocameto aleatorio do inimigo
     inimigo->coordInimigo.dx = numeroRandomDx;
-    inimigo->coordInimigo.dx = numeroRandomDy;
+    inimigo->coordInimigo.dy = numeroRandomDy;
 }
 
 // Funcao que centraliza a janela ao centro da tela
@@ -100,8 +101,8 @@ void posicaoInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
 {
 
     // Define a posicao do inimigo
-    inimigo->coordInimigo.x = 300;
-    inimigo->coordInimigo.y = 300;
+    inimigo->coordInimigo.x = (rand() % (LARGURA/LADO)) + 1;
+    inimigo->coordInimigo.y = (rand() % (LARGURA/LADO)) + 1;
 }
 
 // Funcao que inicializa inimigos
@@ -125,68 +126,61 @@ void inicializaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
 // Funcao que inicializa player
 void inicializaPlayer(TIPO_PLAYER *player)
 {
-    player->coordPlayer.x = LARGURA/2;
-    player->coordPlayer.y = LARGURA/2;
+    player->coordPlayer.x = (LARGURA/LADO)/2;
+    player->coordPlayer.y = (LARGURA/LADO)/2;
     player->coordPlayer.dx = 0;
     player->coordPlayer.dx = 0;
 }
 
-// Funcao que verifica se a estrutura deve mover.
-int deveMover(int x, int y, int dx, int dy)
-{
+// Funcao que verifica se a entidade deve mover.
+int deveMover(COORDENADAS *entidade){
 
-    // Verifica eixo x, está fora dos limites (LARGURA X ALTURA)
-    if ((dx == 1 && x + LADO > LARGURA - LADO) || (dx == -1 && x - LADO < 0))
+    if (entidade->x == (LARGURA/LADO -1) && entidade->dx == 1)
         return 0;
-    // Verifica eixo y, está fora dos limites (LARGURA X ALTURA)
-    if ((dy == 1 && y + LADO > ALTURA - LADO) || (dy == -1 && y - LADO < 0))
+    if (entidade->x == 0 && entidade->dx == -1)
         return 0;
-    //	Retorna 1 caso esteja dentro dos limites.
+    if (entidade->y == (LARGURA/LADO -1) && entidade->dy == 1)
+        return 0;
+    if (entidade->y == 0 && entidade->dy == -1)
+        return 0;
+
+    entidade->x += entidade->dx;
+    entidade->y += entidade->dy;
+
     return 1;
 }
 
-// Funcao que move a estrutura player recebida.
-void move(int dx, int dy, int *x, int *y)
-{
-    if (dx == 1) // Deslocamento direta
-        *x += LADO;
-
-    if (dx == -1) // Deslocamento esquerda
-        *x -= LADO;
-
-    if (dy == 1) // Deslocamento baixo
-        *y += LADO;
-
-    if (dy == -1) // Deslocamento cima
-        *y -= LADO;
-}
 // Funcao que trata controle do jogador
-void controleJogador(int *px, int *py)
+void controleJogador(TIPO_PLAYER *entidade)
 {
+    entidade->cor;
 
     if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT)) // Verifica tecla pressionada e a tecla segurada
     {
-
-        if (deveMover(*px, *py, 1, 0))
-            move(1, 0, px, py);
+        entidade->coordPlayer.dx = 1;
+        entidade->coordPlayer.dy = 0;
+        deveMover(&entidade->coordPlayer);
     }
 
     if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT))
     {
-        if (deveMover(*px, *py, -1, 0))
-            move(-1, 0, px, py);
+        entidade->coordPlayer.dx = -1;
+        entidade->coordPlayer.dy = 0;
+        deveMover(&entidade->coordPlayer);
     }
 
     if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP))
     {
-        if (deveMover(*px, *py, 0, -1))
-            move(0, -1, px, py);
+        entidade->coordPlayer.dx = 0;
+        entidade->coordPlayer.dy = -1;
+        deveMover(&entidade->coordPlayer);
     }
 
     if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN))
     {
-        if (deveMover(*px, *py, 0, 1))
-            move(0, 1, px, py);
+        entidade->coordPlayer.dx = 0;
+        entidade->coordPlayer.dy = 1;
+        deveMover(&entidade->coordPlayer);
     }
 }
 
@@ -210,17 +204,7 @@ int moveInimigo(TIPO_INIMIGO *inimigo)
         // Atualiza o tempo do último movimento
         inimigo->timer = tempoAtual;
 
-        if (inimigo->coordInimigo.dx == 1)
-            inimigo->coordInimigo.x += LADO; // Deslocamento direta
-
-        if (inimigo->coordInimigo.dx == -1)
-            inimigo->coordInimigo.x -= LADO; // Deslocamento esquerda
-
-        if (inimigo->coordInimigo.dy == 1)
-            inimigo->coordInimigo.y += LADO; // Deslocamento baixo
-
-        if (inimigo->coordInimigo.dy == -1)
-            inimigo->coordInimigo.y -= LADO; // Deslocamento cima
+        deveMover(&inimigo->coordInimigo);
 
         return 1; // Retorna 1 indicando que o timer foi zerado e inimigo moveu
     }
