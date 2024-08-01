@@ -81,7 +81,7 @@ int main(void)
 			// sentidoAleatorioInimigo(&inimigo[i]);
 		}
 
-		DrawRectangle(posx, posy, LADO, LADO, GREEN); // Posição do quadrado player
+		DrawRectangle(posx, posy, LADO, LADO, PINK); // Posição do quadrado player
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}
