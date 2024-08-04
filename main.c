@@ -52,9 +52,9 @@ int main(void)
 
 		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
-		DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, GREEN); // Posição do quadrado player
+		DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, player.cor); // Posição do quadrado player
 		for (int i=0; i<MAX_INIMIGOS; i++){
-			DrawRectangle(inimigo[i].coordInimigo.x * LADO, inimigo[i].coordInimigo.y * LADO, LADO, LADO, ORANGE); // Primeira posicao do inimigo desenhada
+			DrawRectangle(inimigo[i].coordInimigo.x * LADO, inimigo[i].coordInimigo.y * LADO, LADO, LADO, inimigo[i].cor); // Primeira posicao do inimigo desenhada
 		}
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
