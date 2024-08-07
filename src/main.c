@@ -64,7 +64,7 @@ int main(void)
 
 		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
-		desenhaMapa(&matriz[0][0], &player);
+		desenhaMapa(&matriz[0][0], &player, &inimigo[0]);
 
 		/*DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, player.cor); // Posição do quadrado player
 		for (int i=0; i<MAX_INIMIGOS; i++){

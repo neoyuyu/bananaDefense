@@ -38,22 +38,17 @@ void inicializaPlayer(TIPO_PLAYER *player, int posx, int posy)
 }
 
 // Funcao que inicializa inimigos
-void inicializaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
+void inicializaInimigo(TIPO_INIMIGO* inimigo)
 {
 
-    double tempoAtual = GetTime(); // Tempo atual
+    double tempoAtual = GetTime(); // Tempo atual    
+    
+    posicaoInimigo(inimigo);          // Inicializa posicao aleatoria do inimigo
+    sentidoAleatorioInimigo(inimigo); // Inicializa sentido aleatorio do inimigo
+    inimigo->timer = 0;                 // Inicializa timer
 
-    for (int i = 0; i < MAX_INIMIGOS; i++)
-    {
-        inimigo[i].cor = RED;
-
-        posicaoInimigo(&inimigo[i]);          // Inicializa posicao aleatoria do inimigo
-        sentidoAleatorioInimigo(&inimigo[i]); // Inicializa sentido aleatorio do inimigo
-        inimigo[i].timer = 0;                 // Inicializa timer
-
-        // Atualiza o tempo do último movimento
-        inimigo->timer = tempoAtual;
-    }
+    // Atualiza o tempo do último movimento
+    inimigo->timer = tempoAtual;
 }
 
 // Funcao que define o sentido aleatorio do inimigo
@@ -288,7 +283,7 @@ int leMapa(char nomeDoArquivo[30], char* matriz) {
     return erro;
 }
 
-void desenhaMapa(char* matriz, TIPO_PLAYER* player){
+void desenhaMapa(char* matriz, TIPO_PLAYER* player, TIPO_INIMIGO* inimigo){
 
     for (int i=0; i<(ALTURA/20); i++)
         for(int j=0; j< LARGURA/20; j++){
@@ -300,6 +295,8 @@ void desenhaMapa(char* matriz, TIPO_PLAYER* player){
 
                 case 'M':                   //Inimigo
                     desenha(j, i, RED);
+                    inicializaInimigo(inimigo);
+                    inimigo++;
                     break;
                 
                 case 'R':                   //Recurso
