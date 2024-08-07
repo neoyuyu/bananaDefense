@@ -112,15 +112,20 @@ int ehColisaoInimiga(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
 // Funcao que verifica se a entidade deve mover.
 int deveMover(COORDENADAS *entidade, char* matriz){
 
+    //Verifica se a movimentação é permitida
     if (entidade->x == (LARGURA/LADO -1) && entidade->dx == 1)
         return 0;
     if (entidade->x == 0 && entidade->dx == -1)
         return 0;
-    if (entidade->y == (LARGURA/LADO -1) && entidade->dy == 1)
+    if (entidade->y == (ALTURA/LADO -1) && entidade->dy == 1)
         return 0;
     if (entidade->y == 0 && entidade->dy == -1)
         return 0;
 
+    if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'W')
+        return 0;
+
+    //Realiza a movimentação
     matriz += entidade->x + entidade->y*(LARGURA/LADO);
     *matriz = ' ';
 
@@ -129,10 +134,6 @@ int deveMover(COORDENADAS *entidade, char* matriz){
 
     matriz += entidade->dx + entidade->dy*(LARGURA/LADO);
     *matriz = 'J';
-
-    //colocar J na posicao
-    //matriz[entidade.x][entidade.y] = 'J'
-    //colocar espaço na antiga posicao
 
     return 1;
 }
