@@ -1,28 +1,41 @@
 #include "raylib.h"
-#include "include/funcoes.h"
+#include "../include/funcoes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 int main(void)
 {
 	srand(time(NULL)); //Inicializa a semente dinamicamente
+
+	GAMESTATUS estadoDoJogo;
+	estadoDoJogo.nivel = '0';
+    char fase[30] = {};
+    char matriz[ALTURA/20][LARGURA/20] = {};
+
+    strcpy(fase, "src/fases/mapa");
+    strncat(fase, &estadoDoJogo.nivel, 1);
+    strcat(fase, ".txt");
+
 	// Inicializar o player
 	TIPO_PLAYER player;		   // Elemento da estrutura structPlayer
 	inicializaPlayer(&player); // Inicializar o jogador
 
 	// Inicializar os inimigos
 	TIPO_INIMIGO inimigo[MAX_INIMIGOS]; // Elemento da estrutura structInimigo
-	for (int i = 0; i < MAX_INIMIGOS; i++)
+	/*for (int i = 0; i < MAX_INIMIGOS; i++)
 		{
 			inicializaInimigo(&inimigo[i]);
 		}
-
+*/
 	// Inicializacoes rayLib
 	InitWindow(LARGURA, ALTURA, "O Jogo"); // Inicializa janela com certo tamanho e titulo
 	centerWindow(LARGURA, ALTURA);		   // Centraliza a janela do jogo ao centro da tela
 	SetTargetFPS(60);					   // Ajusta a taxa de atualizacao de quadros por segundo
+
+	leMapa(fase, &matriz[0][0]);
 
 	// Variável para controlar o tempo acumulado
 
@@ -52,10 +65,12 @@ int main(void)
 
 		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
-		DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, player.cor); // Posição do quadrado player
+		desenhaMapa(&matriz[0][0]);
+
+		/*DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, player.cor); // Posição do quadrado player
 		for (int i=0; i<MAX_INIMIGOS; i++){
 			DrawRectangle(inimigo[i].coordInimigo.x * LADO, inimigo[i].coordInimigo.y * LADO, LADO, LADO, inimigo[i].cor); // Primeira posicao do inimigo desenhada
-		}
+		}*/
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}
