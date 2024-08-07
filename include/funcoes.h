@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 //----------------------------------------------------------------------------------
 // Protótipos das funções
@@ -24,6 +25,7 @@ void centerWindow(float windowWidth, float windowHeight);
 //----------------------------------------------------------------------------------
 // Definição das funções
 //----------------------------------------------------------------------------------
+
 
 // Funcao que inicializa player
 void inicializaPlayer(TIPO_PLAYER *player)
@@ -213,4 +215,90 @@ void centerWindow(float windowWidth, float windowHeight)
 
     //  Define a posição da janela (window) na tela
     SetWindowPosition((int)(monitorWidth / 2) - (int)(windowWidth / 2), (int)(monitorHeight / 2) - (int)(windowHeight / 2));
+}
+
+int salvaEstado(char nomeDoArquivo[30], GAMESTATUS gameStatus){
+    int erro = 1;
+    FILE *arq;
+
+    if(!(arq = fopen(nomeDoArquivo, "w")))
+        erro = 0;
+        else if(!(fwrite(&gameStatus, sizeof(GAMESTATUS), 1, arq)))
+                erro = 0;
+            else fclose(arq);
+
+    return erro;
+}
+
+int leEstado(char nomeDoArquivo[30], GAMESTATUS* gameStatus) {
+    int erro = 1;
+    FILE *arq;
+
+    if (!(arq = fopen(nomeDoArquivo, "r"))) {
+        perror("Erro ao abrir o arquivo para leitura");
+        erro = 0;
+        } else if (!(fread(gameStatus, sizeof(GAMESTATUS), 1, arq))) {
+            perror("Erro ao ler do arquivo");
+            erro = 0;}
+                else fclose(arq);
+
+    return erro;
+}
+
+void desenha(int coordX, int coordY, Color cor){
+
+
+    DrawRectangle(coordX * LADO, coordY * LADO, LADO, LADO, cor); // Posição do quadrado player
+   
+
+}
+
+int leMapa(char nomeDoArquivo[30], char* matriz) {
+    int erro = 1;
+    FILE *arq;
+    char caractere;
+
+    if (!(arq = fopen(nomeDoArquivo, "r"))) {
+        perror("Erro ao abrir o arquivo para leitura");
+        erro = 0;
+    } else {
+        while(!(feof(arq))){
+            caractere = getc(arq);
+            if (caractere != '\n' && caractere != '\0'){
+
+                *matriz = caractere;
+                matriz += sizeof(char); 
+                
+            }
+        }
+        fclose(arq);
+    }
+
+    return erro;
+}
+
+void desenhaMapa(char* matriz){
+
+    for (int i=0; i<(ALTURA/20); i++)
+        for(int j=0; j< LARGURA/20; j++){
+            switch(*matriz){
+                case 'W':
+                    desenha(j, i, PURPLE);
+                    break;
+
+                case 'S':
+                    desenha(j, i, BLUE);
+                    break;
+
+                case 'J':
+                    desenha(j, i, GREEN);
+                    break;
+                
+                case ' ':
+                    desenha(j, i, WHITE);
+                    break;
+
+            }
+            matriz++;
+        }
 }

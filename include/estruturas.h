@@ -39,3 +39,11 @@ typedef struct
     Color cor;
 
 } TIPO_INIMIGO;
+
+typedef struct{
+    TIPO_PLAYER Player;
+    TIPO_INIMIGO enemy[MAX_INIMIGOS];
+    int pontuacao, vidas;
+    char nivel;
+    
+} GAMESTATUS;
