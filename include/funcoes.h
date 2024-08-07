@@ -11,14 +11,14 @@
 //----------------------------------------------------------------------------------
 // Protótipos das funções
 //----------------------------------------------------------------------------------
-void inicializaPlayer(TIPO_PLAYER *player);
+void inicializaPlayer(TIPO_PLAYER *player, int posx, int posy);
 void inicializaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS]);
 void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo);
 void posicaoInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS]);
 int ehColisaoInimiga(TIPO_INIMIGO inimigo[MAX_INIMIGOS]);
-int deveMover(COORDENADAS *entidade);
-void controleJogador(TIPO_PLAYER *entidade);
-int moveInimigo(TIPO_INIMIGO *inimigo);
+int deveMover(COORDENADAS *entidade, char* matriz);
+void controleJogador(TIPO_PLAYER *entidade, char* matriz);
+int moveInimigo(TIPO_INIMIGO *inimigo, char* matriz);
 void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo);
 void centerWindow(float windowWidth, float windowHeight);
 
@@ -28,32 +28,27 @@ void centerWindow(float windowWidth, float windowHeight);
 
 
 // Funcao que inicializa player
-void inicializaPlayer(TIPO_PLAYER *player)
+void inicializaPlayer(TIPO_PLAYER *player, int posx, int posy)
 {
     player->cor = GREEN;
-    player->coordPlayer.x = (LARGURA/LADO)/2;
-    player->coordPlayer.y = (ALTURA/LADO)/2;
+    player->coordPlayer.x = posx;
+    player->coordPlayer.y = posy;
     player->coordPlayer.dx = 0;
     player->coordPlayer.dx = 0;
 }
 
 // Funcao que inicializa inimigos
-void inicializaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
+void inicializaInimigo(TIPO_INIMIGO* inimigo)
 {
 
-    double tempoAtual = GetTime(); // Tempo atual
+    double tempoAtual = GetTime(); // Tempo atual    
+    
+    posicaoInimigo(inimigo);          // Inicializa posicao aleatoria do inimigo
+    sentidoAleatorioInimigo(inimigo); // Inicializa sentido aleatorio do inimigo
+    inimigo->timer = 0;                 // Inicializa timer
 
-    for (int i = 0; i < MAX_INIMIGOS; i++)
-    {
-        inimigo[i].cor = RED;
-
-        posicaoInimigo(&inimigo[i]);          // Inicializa posicao aleatoria do inimigo
-        sentidoAleatorioInimigo(&inimigo[i]); // Inicializa sentido aleatorio do inimigo
-        inimigo[i].timer = 0;                 // Inicializa timer
-
-        // Atualiza o tempo do último movimento
-        inimigo->timer = tempoAtual;
-    }
+    // Atualiza o tempo do último movimento
+    inimigo->timer = tempoAtual;
 }
 
 // Funcao que define o sentido aleatorio do inimigo
@@ -110,25 +105,36 @@ int ehColisaoInimiga(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
 
 
 // Funcao que verifica se a entidade deve mover.
-int deveMover(COORDENADAS *entidade){
+int deveMover(COORDENADAS *entidade, char* matriz){
 
+    //Verifica se a movimentação é permitida
     if (entidade->x == (LARGURA/LADO -1) && entidade->dx == 1)
         return 0;
     if (entidade->x == 0 && entidade->dx == -1)
         return 0;
-    if (entidade->y == (LARGURA/LADO -1) && entidade->dy == 1)
+    if (entidade->y == (ALTURA/LADO -1) && entidade->dy == 1)
         return 0;
     if (entidade->y == 0 && entidade->dy == -1)
         return 0;
 
+    if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'W')
+        return 0;
+
+    //Realiza a movimentação
+    matriz += entidade->x + entidade->y*(LARGURA/LADO);
+    *matriz = ' ';
+
     entidade->x += entidade->dx;
     entidade->y += entidade->dy;
+
+    matriz += entidade->dx + entidade->dy*(LARGURA/LADO);
+    *matriz = 'J';
 
     return 1;
 }
 
 // Funcao que trata controle do jogador
-void controleJogador(TIPO_PLAYER *entidade)
+void controleJogador(TIPO_PLAYER *entidade, char* matriz)
 {
     entidade->cor;
 
@@ -136,33 +142,33 @@ void controleJogador(TIPO_PLAYER *entidade)
     {
         entidade->coordPlayer.dx = 1;
         entidade->coordPlayer.dy = 0;
-        deveMover(&entidade->coordPlayer);
+        deveMover(&entidade->coordPlayer, matriz);
     }
 
     if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT))
     {
         entidade->coordPlayer.dx = -1;
         entidade->coordPlayer.dy = 0;
-        deveMover(&entidade->coordPlayer);
+        deveMover(&entidade->coordPlayer, matriz);
     }
 
     if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP))
     {
         entidade->coordPlayer.dx = 0;
         entidade->coordPlayer.dy = -1;
-        deveMover(&entidade->coordPlayer);
+        deveMover(&entidade->coordPlayer, matriz);
     }
 
     if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN))
     {
         entidade->coordPlayer.dx = 0;
         entidade->coordPlayer.dy = 1;
-        deveMover(&entidade->coordPlayer);
+        deveMover(&entidade->coordPlayer, matriz);
     }
 }
 
 // Funcao que move o inimigo
-int moveInimigo(TIPO_INIMIGO *inimigo)
+int moveInimigo(TIPO_INIMIGO *inimigo, char* matriz)
 {
 
     // Tempo atual
@@ -181,7 +187,7 @@ int moveInimigo(TIPO_INIMIGO *inimigo)
         // Atualiza o tempo do último movimento
         inimigo->timer = tempoAtual;
 
-        deveMover(&inimigo->coordInimigo);
+        deveMover(&inimigo->coordInimigo, matriz);
 
         return 1; // Retorna 1 indicando que o timer foi zerado e inimigo moveu
     }
@@ -277,24 +283,39 @@ int leMapa(char nomeDoArquivo[30], char* matriz) {
     return erro;
 }
 
-void desenhaMapa(char* matriz){
+void desenhaMapa(char* matriz, TIPO_PLAYER* player, TIPO_INIMIGO* inimigo){
 
     for (int i=0; i<(ALTURA/20); i++)
         for(int j=0; j< LARGURA/20; j++){
             switch(*matriz){
-                case 'W':
-                    desenha(j, i, PURPLE);
+                case 'J':                   //Player
+                    desenha(j, i, GREEN);
+                    inicializaPlayer(player, j, i); // Inicializar o jogador
                     break;
 
-                case 'S':
+                case 'M':                   //Inimigo
+                    desenha(j, i, RED);
+                    inicializaInimigo(inimigo);
+                    inimigo++;
+                    break;
+                
+                case 'R':                   //Recurso
+                    desenha(j, i, PINK);
+                    break;
+
+                case 'H':                   //Buraco/Portal
+                    desenha(j, i, YELLOW);
+                    break;
+
+                case 'S':                   //Base
                     desenha(j, i, BLUE);
                     break;
 
-                case 'J':
-                    desenha(j, i, GREEN);
+                case 'W':                   //Parede
+                    desenha(j, i, PURPLE);
                     break;
                 
-                case ' ':
+                case ' ':                   //Área de trânsito
                     desenha(j, i, WHITE);
                     break;
 
