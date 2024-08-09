@@ -51,8 +51,9 @@ int main(void)
 		BeginDrawing(); // Inicia o ambiente de desenho na tela
 
 		//ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
+		desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base);
 
-		recursosColetados += coletaRecursos (&player.coordPlayer, matriz);
+		recursosColetados += coletaRecursos (&player.coordPlayer, &matriz[0][0]);
         if (IsKeyPressed(KEY_G)) {
             if (matriz[player.coordPlayer.y][player.coordPlayer.x] == ' ') {
                 if (recursosColetados>0) {
@@ -62,7 +63,7 @@ int main(void)
             }
         }
         DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 10, 20, BLACK);
-		desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base);
+		
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}

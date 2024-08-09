@@ -227,10 +227,10 @@ int moveInimigo(TIPO_INIMIGO *inimigo, char* matriz, BASE* base)
             inimigoFuturo[i].coordInimigo.dy = -1;
         }
 
-        if(deveMover(&inimigoFuturo->coordInimigo, matriz)){
+        if(deveMover(&inimigoFuturo[i].coordInimigo, matriz)){
             distancia[i] = distanciaAteBase(inimigo, base);
             for (int j=0; j<i; j++){
-                if(distancia[i]> distancia[i-j]){
+                if(distancia[i]< distancia[i-j]){
                     inimigo->coordInimigo.dx = inimigoFuturo[i].coordInimigo.dx;
                     inimigo->coordInimigo.dy = inimigoFuturo[i].coordInimigo.dy;
                 }
@@ -238,10 +238,11 @@ int moveInimigo(TIPO_INIMIGO *inimigo, char* matriz, BASE* base)
         }              
     }
      
+     move(&inimigo->coordInimigo, matriz, inimigo->letra);
 
     // Se não, se timer for válido.
 
-    if (tempoAtual - inimigo->timer >= INIMIGO_DELAY)
+   /* if (tempoAtual - inimigo->timer >= INIMIGO_DELAY)
     {
         // Atualiza o tempo do último movimento
         inimigo->timer = tempoAtual;
@@ -249,7 +250,7 @@ int moveInimigo(TIPO_INIMIGO *inimigo, char* matriz, BASE* base)
         move(&inimigo->coordInimigo, matriz, inimigo->letra);
 
         return 1; // Retorna 1 indicando que o timer foi zerado e inimigo moveu
-    }
+    }*/
 
     return 0; // Retorna 0 indicando que o inimigo não se moveu
 }
