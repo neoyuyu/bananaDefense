@@ -107,10 +107,15 @@ int ehColisaoInimiga(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
     }
 }
 
+int coletaRecursos (COORDENADAS *entidade, char *matriz) {
+    if (entidade->x == 'R' && entidade->y== 'R') {
+        return 1;
+    }
+    return 0;
+}
 
 // Funcao que verifica se a entidade deve mover.
 int deveMover(COORDENADAS *entidade, char* matriz){
-
     //Verifica se o player vai sair da tela
     if (entidade->x == (LARGURA/LADO -1) && entidade->dx == 1)
         return 0;
@@ -124,6 +129,8 @@ int deveMover(COORDENADAS *entidade, char* matriz){
     //Verifica se o player vai sobrepor outra entidade que não deve
     if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'W')
         return 0;
+    if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'R')
+        coletaRecursos(entidade, matriz);
     if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'M')
         return 0;
     if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'S')
@@ -149,7 +156,6 @@ void move (COORDENADAS *entidade, char* matriz, char letra){
 void controleJogador(TIPO_PLAYER *entidade, char* matriz)
 {
     entidade->cor;
-
     if (IsKeyPressed(KEY_RIGHT)) // Verifica tecla pressionada 
     {
         entidade->coordPlayer.dx = 1;
@@ -372,6 +378,10 @@ void desenhaMapa(char* matriz, TIPO_PLAYER* player, TIPO_INIMIGO* inimigo, BASE*
                 
                 case ' ':                   //Área de trânsito
                     desenha(j, i, WHITE);
+                    break;
+
+                case 'O':                   //Obstáculo
+                    desenha(j, i, BLACK);
                     break;
 
             }
