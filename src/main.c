@@ -26,11 +26,9 @@ int main(void)
 
 	// Inicializar os inimigos
 	TIPO_INIMIGO inimigo[MAX_INIMIGOS]; // Elemento da estrutura structInimigo
-	/*for (int i = 0; i < MAX_INIMIGOS; i++)
-		{
-			inicializaInimigo(&inimigo[i]);
-		}
-*/
+
+	BASE base;
+
 	// Inicializacoes rayLib
 	InitWindow(LARGURA, ALTURA, "O Jogo"); // Inicializa janela com certo tamanho e titulo
 	centerWindow(LARGURA, ALTURA);		   // Centraliza a janela do jogo ao centro da tela
@@ -38,35 +36,21 @@ int main(void)
 
 	leMapa(fase, &matriz[0][0]);
 
-	// Variável para controlar o tempo acumulado
-
 	// Laco principal do jogo
 	while (!WindowShouldClose()) // Detectar o botao de fechar janela ou a tecla ESC
 	{
 
 		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
 
-		/*ehColisaoInimiga(inimigo); // Verifica o arranjo de inimigos para checar colisoes no inicio do jogo
-
-		for (int i = 0; i < MAX_INIMIGOS; i++)
-		{
-
-			// Verifica se o inimigo pode se mover e desenha na tela
-			if (!moveInimigo(&inimigo[i], &matriz[0][0]))
-			{
-				redefineDeslocamentoInimigo(&inimigo[i]);
-				moveInimigo(&inimigo[i], &matriz[0][0]);
-			}
-		}*/
-
-		// sentidoAleatorioInimigo(&inimigo[i]);	// Inicializa o sentido aleatorio do inimigo, não é necessário
+		for(int i=0; i<2; i++){
+			moveInimigo(&inimigo[i], &matriz[0][0], &base);
+		}
+		
 
 		// Mostrar informacoes visuais para o usuario:
 		BeginDrawing(); // Inicia o ambiente de desenho na tela
 
 		//ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
-
-		desenhaMapa(&matriz[0][0], &player, &inimigo[0]);
 
 		recursosColetados += coletaRecursos (&player.coordPlayer, matriz);
         if (IsKeyPressed(KEY_G)) {
@@ -78,11 +62,7 @@ int main(void)
             }
         }
         DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 10, 20, BLACK);
-
-		/*DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, player.cor); // Posição do quadrado player
-		for (int i=0; i<MAX_INIMIGOS; i++){
-			DrawRectangle(inimigo[i].coordInimigo.x * LADO, inimigo[i].coordInimigo.y * LADO, LADO, LADO, inimigo[i].cor); // Primeira posicao do inimigo desenhada
-		}*/
+		desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base);
 
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}
