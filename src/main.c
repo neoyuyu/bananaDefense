@@ -14,6 +14,8 @@ int main(void)
 	estadoDoJogo.nivel = '0';
     char fase[30] = {};
     char matriz[ALTURA/LADO][LARGURA/LADO] = {};
+	int recursosColetados = 0;
+
 
     strcpy(fase, "src/fases/mapa");
     strncat(fase, &estadoDoJogo.nivel, 1);
@@ -62,9 +64,20 @@ int main(void)
 		// Mostrar informacoes visuais para o usuario:
 		BeginDrawing(); // Inicia o ambiente de desenho na tela
 
-		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
+		//ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
 
 		desenhaMapa(&matriz[0][0], &player, &inimigo[0]);
+
+		recursosColetados += coletaRecursos (&player.coordPlayer, matriz);
+        if (IsKeyPressed(KEY_G)) {
+            if (matriz[player.coordPlayer.y][player.coordPlayer.x] == ' ') {
+                if (recursosColetados>0) {
+                matriz[player.coordPlayer.y][player.coordPlayer.x] ='O';
+                recursosColetados--;
+            }
+            }
+        }
+        DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 10, 20, BLACK);
 
 		/*DrawRectangle(player.coordPlayer.x * LADO, player.coordPlayer.y * LADO, LADO, LADO, player.cor); // Posição do quadrado player
 		for (int i=0; i<MAX_INIMIGOS; i++){

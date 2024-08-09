@@ -103,10 +103,15 @@ int ehColisaoInimiga(TIPO_INIMIGO inimigo[MAX_INIMIGOS])
     }
 }
 
+int coletaRecursos (COORDENADAS *entidade, char *matriz) {
+    if (entidade->x == 'R' && entidade->y== 'R') {
+        return 1;
+    }
+    return 0;
+}
 
 // Funcao que verifica se a entidade deve mover.
 int deveMover(COORDENADAS *entidade, char* matriz){
-
     //Verifica se a movimentação é permitida
     if (entidade->x == (LARGURA/LADO -1) && entidade->dx == 1)
         return 0;
@@ -119,7 +124,9 @@ int deveMover(COORDENADAS *entidade, char* matriz){
 
     if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'W')
         return 0;
-
+    if(*(matriz + (entidade->x+entidade->dx) + (entidade->y + entidade->dy)*(LARGURA/LADO)) == 'R')
+        coletaRecursos(entidade, matriz);
+    
     //Realiza a movimentação
     matriz += entidade->x + entidade->y*(LARGURA/LADO);
     *matriz = ' ';
@@ -138,28 +145,28 @@ void controleJogador(TIPO_PLAYER *entidade, char* matriz)
 {
     entidade->cor;
 
-    if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT)) // Verifica tecla pressionada e a tecla segurada
+    if (IsKeyPressed(KEY_RIGHT)) // Verifica tecla pressionada e a tecla segurada
     {
         entidade->coordPlayer.dx = 1;
         entidade->coordPlayer.dy = 0;
         deveMover(&entidade->coordPlayer, matriz);
     }
 
-    if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT))
+    if (IsKeyPressed(KEY_LEFT))
     {
         entidade->coordPlayer.dx = -1;
         entidade->coordPlayer.dy = 0;
         deveMover(&entidade->coordPlayer, matriz);
     }
 
-    if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP))
+    if (IsKeyPressed(KEY_UP))
     {
         entidade->coordPlayer.dx = 0;
         entidade->coordPlayer.dy = -1;
         deveMover(&entidade->coordPlayer, matriz);
     }
 
-    if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN))
+    if (IsKeyPressed(KEY_DOWN))
     {
         entidade->coordPlayer.dx = 0;
         entidade->coordPlayer.dy = 1;
@@ -317,6 +324,10 @@ void desenhaMapa(char* matriz, TIPO_PLAYER* player, TIPO_INIMIGO* inimigo){
                 
                 case ' ':                   //Área de trânsito
                     desenha(j, i, WHITE);
+                    break;
+
+                case 'O':                   //Obstáculo
+                    desenha(j, i, BLACK);
                     break;
 
             }
