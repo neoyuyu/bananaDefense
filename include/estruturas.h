@@ -27,6 +27,7 @@ typedef struct
 
     COORDENADAS coordPlayer;
     Color cor;
+    char letra;
 
 } TIPO_PLAYER;
 
@@ -37,8 +38,17 @@ typedef struct
     COORDENADAS coordInimigo;
     double timer; // Timer para movimentacao
     Color cor;
+    char letra;
 
 } TIPO_INIMIGO;
+
+typedef struct
+{
+
+    COORDENADAS coordBase;
+    Color cor;
+
+} BASE;
 
 typedef struct{
     TIPO_PLAYER Player;
