@@ -3,22 +3,22 @@
 // Constantes (macro definicoes) para uso no programa geral
 #define LARGURA 1200
 #define ALTURA 600
-#define M_TAMANHO 30
-#define INIMIGO_DELAY 1 // Delay para movimentacao do inimigo em s
+#define INIMIGO_DELAY 0.3 // Delay para movimentacao do inimigo em s
 #define LADO 20
-#define MAX_INIMIGOS 10
-#define BACKGROUND_COLOR \
-    (Color) { 60, 3, 32, 100 } // Cor Vinho
+#define MAX_INIMIGOS 50
+#define MAX_RECURSOS 50
 
 //----------------------------------------------------------------------------------
-// Structures Definition
+// Definição de estruturas
 //----------------------------------------------------------------------------------
 
 typedef struct
 {
 
-    int x, y;   // posições
-    int dx, dy; // deslocamentos
+    int x;  // posição x
+    int y;  // posição y
+    int dx; // deslocamento no eixo x
+    int dy; // deslocamento no eixo y
 
 } COORDENADAS;
 
@@ -26,9 +26,9 @@ typedef struct
 typedef struct
 {
 
-    COORDENADAS coordPlayer;
-    Color cor;
-    char letra;
+    COORDENADAS coordPlayer; // Coordenadas do jogador
+    Color cor;               // Cor do jogador
+    char letra;              // Letra que o jogador representa no mapa
 
 } TIPO_PLAYER;
 
@@ -36,28 +36,39 @@ typedef struct
 typedef struct
 {
 
-    COORDENADAS coordInimigo;
-    int ultimoMovimentoX; // Ultima direcao de movimento
-    int ultimoMovimentoY; // Ultima direcao de movimento
-    double timer;         // Timer para movimentacao
-    Color cor;
-    char letra;
+    COORDENADAS coordInimigo; // Coordenadas do inimigo
+    int ultimoMovimentoX;     // Ultima direcao de movimento
+    int ultimoMovimentoY;     // Ultima direcao de movimento
+    double timer;             // Timer para movimentacao com delay
+    Color cor;                // Cor do inimigo
+    char letra;               // Letra que o inimigo representa no mapa
 
 } TIPO_INIMIGO;
 
 typedef struct
 {
 
-    COORDENADAS coordBase;
-    Color cor;
+    COORDENADAS coordBase; // Coordenadas da base
+    Color cor;             // Cor da base
 
 } BASE;
 
 typedef struct
 {
-    TIPO_PLAYER Player;
-    TIPO_INIMIGO enemy[MAX_INIMIGOS];
-    int pontuacao, vidas;
-    char nivel;
+    TIPO_PLAYER Player;               // Informacoes do jogador
+    TIPO_INIMIGO enemy[MAX_INIMIGOS]; // Informacoes dos inimigos
+    int pontuacao;                    // Pontuacao do jogador no jogo
+    int vidas;                        // Vidas do jogador
+    char nivel;                       // Nivel do jogo
 
 } GAMESTATUS;
+
+// Estrutura enumerada GAMESCREEN representa as telas do jogo
+typedef enum
+{
+    LOGO = 0,
+    TITULO,
+    MENU,
+    GAMEPLAY,
+    GAMEOVER
+} GAMESCREEN;

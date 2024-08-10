@@ -138,17 +138,19 @@ int deveMover(COORDENADAS *entidade, char *matriz)
     // Verifica se a entidade colidiu com algum obstaculo
     if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'W')
     {
-        printf("\nColidiu com parede");
         return 0;
     }
     if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'R')
         coletaRecursos(entidade, matriz);
+
     if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'M')
     {
-        printf("\nInimigo Colidiu");
         return 0;
     }
     if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'S')
+        return 0;
+
+    if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'J')
         return 0;
 
     return 1;
@@ -162,31 +164,10 @@ void move(COORDENADAS *entidade, char *matriz, char letra)
     matriz += entidade->x + entidade->y * (LARGURA / LADO);
     *matriz = ' ';
 
-    entidade->x += entidade->dx;
+    entidade->x = entidade->x + entidade->dx;
     entidade->y += entidade->dy;
 
     matriz += entidade->dx + entidade->dy * (LARGURA / LADO);
-    *matriz = letra;
-}
-
-void moveInimigoTela(TIPO_INIMIGO *entidade, char *matriz, char letra)
-{
-
-    //  Realiza a movimentação
-    matriz += entidade->coordInimigo.x + entidade->coordInimigo.y * (LARGURA / LADO);
-    *matriz = ' ';
-
-    entidade->coordInimigo.x += entidade->coordInimigo.dx;
-    entidade->coordInimigo.y += entidade->coordInimigo.dy;
-
-    // Atribui ultimo movimento
-    entidade->ultimoMovimentoX = entidade->coordInimigo.dx;
-    entidade->ultimoMovimentoY = entidade->coordInimigo.dy;
-    // Mostrar ultimo movimento
-
-    //  printf("\nUltimo movimento: %d %d", entidade->ultimoMovimentoX, entidade->ultimoMovimentoY);
-
-    matriz += entidade->coordInimigo.dx + entidade->coordInimigo.dy * (LARGURA / LADO);
     *matriz = letra;
 }
 
@@ -207,12 +188,14 @@ void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base)
         // Verifica se inimigo deve mover
         if (deveMover(&inimigo->coordInimigo, matriz))
         {
-            moveInimigoTela(inimigo, matriz, inimigo->letra);
+            move(&inimigo->coordInimigo, matriz, inimigo->letra);
+            inimigo->ultimoMovimentoX = inimigo->coordInimigo.dx;
+            inimigo->ultimoMovimentoY = inimigo->coordInimigo.dy;
         }
         else
         {
+
             redefineDeslocamentoInimigo(inimigo, matriz);
-            moveInimigoTela(inimigo, matriz, inimigo->letra);
         }
     }
 }
@@ -221,12 +204,13 @@ void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base)
 void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz)
 {
     // Verificar negativos
+
     //  caso dx e dy sejam iguais a 0, o inimigo está parado
     if (inimigo->coordInimigo.dx == 0 && inimigo->coordInimigo.dy == 0)
     {
-        inimigo->coordInimigo.dy = -1; // Inimigo deslocamento x igual a 1
+        inimigo->coordInimigo.dx = 1; // Inimigo deslocamento x igual a -1
         if (!deveMover(&inimigo->coordInimigo, matriz))
-            inimigo->coordInimigo.dy = 1; // Se nao, move para direita
+            inimigo->coordInimigo.dx = -1;
     }
 
     if (inimigo->ultimoMovimentoX == -1) // Se ultimo movimento foi para esquerda
