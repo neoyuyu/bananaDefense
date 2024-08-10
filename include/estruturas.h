@@ -14,10 +14,11 @@
 // Structures Definition
 //----------------------------------------------------------------------------------
 
-typedef struct{
+typedef struct
+{
 
-    int x, y;               //posições
-    int dx, dy;             //deslocamentos
+    int x, y;   // posições
+    int dx, dy; // deslocamentos
 
 } COORDENADAS;
 
@@ -36,7 +37,9 @@ typedef struct
 {
 
     COORDENADAS coordInimigo;
-    double timer; // Timer para movimentacao
+    int ultimoMovimentoX; // Ultima direcao de movimento
+    int ultimoMovimentoY; // Ultima direcao de movimento
+    double timer;         // Timer para movimentacao
     Color cor;
     char letra;
 
@@ -50,10 +53,11 @@ typedef struct
 
 } BASE;
 
-typedef struct{
+typedef struct
+{
     TIPO_PLAYER Player;
     TIPO_INIMIGO enemy[MAX_INIMIGOS];
     int pontuacao, vidas;
     char nivel;
-    
+
 } GAMESTATUS;

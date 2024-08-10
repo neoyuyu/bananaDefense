@@ -24,7 +24,7 @@ int main(void)
 	TIPO_PLAYER player; // Elemento da estrutura structPlayer
 
 	// Inicializar os inimigos
-	TIPO_INIMIGO inimigo[MAX_INIMIGOS]; // Elemento da estrutura structInimigo
+	TIPO_INIMIGO inimigo[MAX_INIMIGOS] = {}; // Elemento da estrutura structInimigo
 
 	BASE base;
 
@@ -41,16 +41,18 @@ int main(void)
 
 		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
 
-		for (int i = 0; i < 2; i++)
-		{
-			moveInimigo(&inimigo[i], &matriz[0][0], &base);
-		}
-
 		// Mostrar informacoes visuais para o usuario:
 		BeginDrawing(); // Inicia o ambiente de desenho na tela
 
-		// ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
-		desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base);
+		ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
+
+		desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base); // Desenha mapa e inicializa inimigos
+
+		for (int i = 0; i < 4; i++)
+		{
+
+			moveInimigo(&inimigo[i], &matriz[0][0], &base);
+				}
 
 		recursosColetados += coletaRecursos(&player.coordPlayer, &matriz[0][0]);
 		if (IsKeyPressed(KEY_G))
