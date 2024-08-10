@@ -4,7 +4,7 @@
 #define LARGURA 1200
 #define ALTURA 600
 #define M_TAMANHO 30
-#define INIMIGO_DELAY 0.5 // Delay para movimentacao do inimigo em s
+#define INIMIGO_DELAY 1 // Delay para movimentacao do inimigo em s
 #define LADO 20
 #define MAX_INIMIGOS 10
 #define BACKGROUND_COLOR \
