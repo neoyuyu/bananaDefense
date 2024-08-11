@@ -255,6 +255,7 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz)
 void controleJogador(TIPO_PLAYER *entidade, char *matriz)
 {
     entidade->cor;
+
     if (IsKeyPressed(KEY_RIGHT)) // Verifica tecla pressionada
     {
         entidade->coordPlayer.dx = 1;
@@ -308,6 +309,93 @@ void centerWindow(float windowWidth, float windowHeight)
 
     //  Define a posição da janela (window) na tela
     SetWindowPosition((int)(monitorWidth / 2) - (int)(windowWidth / 2), (int)(monitorHeight / 2) - (int)(windowHeight / 2));
+}
+
+// Funcao que verifica a tela atual do jogo e muda de acordo com a situacao
+void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar)
+{
+    // Modifica a tela atual de acordo com a situacao do jogo
+    switch (*telaAtual)
+    {
+
+    case TITULO: // Tela titulo do jogo, onde o jogador pode iniciar o jogo
+    {
+        if (IsKeyPressed(KEY_N)) // Inicia um novo jogo
+        {
+            // inicializaPlayer(&player);
+            *telaAtual = GAMEPLAY;
+        }
+
+        if (IsKeyPressed(KEY_C)) // Carrega o jogo
+        {
+            *telaAtual = GAMEPLAY;
+        }
+        if (IsKeyPressed(KEY_O)) // Tela de game over
+        {
+            *telaAtual = GAMEOVER;
+        }
+        if (IsKeyPressed(KEY_Q)) // Sai do jogo
+        {
+            *deveFechar = true;
+        }
+    }
+    break;
+
+    case GAMEPLAY: // Tela de gameplay, onde o jogador pode jogar
+    {
+        if (IsKeyPressed(KEY_TAB)) // Abre o menu
+        {
+            *telaAtual = MENU;
+        }
+    }
+    break;
+
+    case MENU: // Tela de menu ou pause, onde o jogador pode retornar ao titulo
+    {
+        if (IsKeyPressed(KEY_J)) /// Continua o jogo
+        {
+            *telaAtual = GAMEPLAY;
+        }
+        if (IsKeyPressed(KEY_C)) // Carrega o jogo
+        {
+            *telaAtual = GAMEPLAY;
+        }
+        if (IsKeyPressed(KEY_S)) // Salva o jogo
+        {
+        }
+
+        if (IsKeyPressed(KEY_V)) // Volta ao titulo
+        {
+            *telaAtual = TITULO;
+        }
+        if (IsKeyPressed(KEY_F)) // Fecha o jogo sem salvar
+        {
+            *telaAtual = TITULO;
+        }
+    }
+    break;
+
+    case GAMEOVER: // Tela de game over, onde o jogador pode retornar ao titulo
+    {
+        if (IsKeyPressed(KEY_L)) // Carrega o jogo
+        {
+            *telaAtual = GAMEPLAY;
+        }
+        if (IsKeyPressed(KEY_R)) // Reinicia o jogo
+        {
+            *telaAtual = GAMEPLAY;
+        }
+
+        if (IsKeyPressed(KEY_V)) // Volta ao titulo
+        {
+            *telaAtual = TITULO;
+        }
+    }
+    break;
+
+    default:
+        break;
+    }
 }
 
 int salvaEstado(char nomeDoArquivo[30], GAMESTATUS gameStatus)

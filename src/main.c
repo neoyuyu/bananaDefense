@@ -28,8 +28,10 @@ int main(void)
 	int recursosColetados = 0;						 // Recursos coletados pelo jogador
 	int qtdInimigos = 0;							 // Quantidade de inimigos lidos no mapa
 	BASE base;										 // Base do jogador
-	GAMESCREEN telaAtual = MENU;					 // Tela inicial do jogo
+	GAMESCREEN telaAtual = TITULO;					 // Tela inicial do jogo
 	int contadorFrames = 0;							 // Contador de frames
+
+	int deveFechar = 0; // Variavel para fechar o jogo
 
 	// Inicializar o player pela primeira vez
 	TIPO_PLAYER player;
@@ -47,79 +49,107 @@ int main(void)
 	centerWindow(LARGURA, ALTURA);			// Centraliza a janela do jogo ao centro da tela
 	SetTargetFPS(60);						// Ajusta a taxa de atualizacao de quadros por segundo
 
+	// Carregar textura do jogo
+	Image imagemTitulo = LoadImage("src/resources/images/jungle.png"); // Loaded in CPU memory (RAM)
+	Texture2D texturaTitulo = LoadTextureFromImage(imagemTitulo);	   // Image converted to texture, GPU memory (VRAM)
+	UnloadImage(imagemTitulo);										   // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
+
 	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa
 
 	// Laco principal do jogo
-	while (!WindowShouldClose()) // Detectar o botao de fechar janela ou a tecla ESC
+	while (!deveFechar) // Detectar quando o jogador fecha a janela
 	{
+
+		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
+
+		verificaTelaJogo(&telaAtual, &deveFechar); // Verifica a tela atual do jogo e muda conforme a tecla pressionada
+
+		//----------------------------------------------------------------------------------
+		// Mostrar informacoes visuais para o usuario:
+		//----------------------------------------------------------------------------------
+		BeginDrawing(); // Inicia o ambiente de desenho na tela
+
+		ClearBackground(RAYWHITE); // Limpa a tela e define cor de fundo
 
 		switch (telaAtual)
 		{
 
-		case TITULO:
-		{
-			// TODO: Draw TITLE screen here!
-			DrawText("TITLE SCREEN", 20, 20, 40, DARKGREEN);
-			DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
-		}
-		break;
 		case GAMEPLAY:
 		{
-			// TODO: Draw GAMEPLAY screen here!
-			DrawRectangle(0, 0, screenWidth, screenHeight, PURPLE);
-			DrawText("GAMEPLAY SCREEN", 20, 20, 40, MAROON);
-			DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
+
+			desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base); // Desenha mapa e inicializa inimigos
+
+			// Move os inimigos
+			for (int i = 0; i < qtdInimigos; i++)
+			{
+				moveInimigo(&inimigo[i], &matriz[0][0], &base);
+			}
+
+			recursosColetados += coletaRecursos(&player.coordPlayer, &matriz[0][0]);
+			if (IsKeyPressed(KEY_G))
+			{
+				if (matriz[player.coordPlayer.y][player.coordPlayer.x] == ' ')
+				{
+					if (recursosColetados > 0)
+					{
+						matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
+						recursosColetados--;
+					}
+				}
+			}
+			DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 10, 20, BLACK);
 		}
 		break;
+
+		case TITULO:
+		{
+			DrawTexture(texturaTitulo, LARGURA / 2 - texturaTitulo.width / 2, ALTURA / 2 - texturaTitulo.height / 2, WHITE);
+			DrawText("N - Novo Jogo", LARGURA / 2 - 200, ALTURA / 2 - 80, 50, RAYWHITE);
+			DrawText("C - Carregar Jogo", LARGURA / 2 - 200, ALTURA / 2 - 5, 50, RAYWHITE);
+			DrawText("Q - Sair do Jogo", LARGURA / 2 - 200, ALTURA / 2 - -70, 50, RAYWHITE);
+			DrawText("O - Mais", LARGURA / 2 - 200, ALTURA / 2 - -145, 50, RAYWHITE);
+		}
+		break;
+
 		case MENU:
 		{
-			// TODO: Draw ENDING screen here!
-			DrawRectangle(0, 0, screenWidth, screenHeight, BLUE);
-			DrawText("ENDING SCREEN", 20, 20, 40, DARKBLUE);
-			DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 120, 220, 20, DARKBLUE);
-		}
-		case GAMEOVER:
-		{
-			// TODO: Draw ENDING screen here!
-			DrawText("SE LASCOU", 20, 20, 40, DARKBLUE);
-			DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 120, 220, 20, DARKBLUE);
+
+			DrawTexture(texturaTitulo, LARGURA / 2 - texturaTitulo.width / 2, ALTURA / 2 - texturaTitulo.height / 2, WHITE);
+			DrawText("MENU", 20, 20, 40, DARKBLUE);
+			DrawText("C - Continuar", LARGURA / 2 - 200, ALTURA / 2 - 80, 50, RAYWHITE);
+			DrawText("L - Carregar Jogo", LARGURA / 2 - 200, ALTURA / 2 - 5, 50, RAYWHITE);
+			DrawText("S - Salvar Jogo", LARGURA / 2 - 200, ALTURA / 2 + 70, 50, RAYWHITE);
+			DrawText("V - Voltar ao Menu", LARGURA / 2 - 200, ALTURA / 2 + 145, 50, RAYWHITE);
+			DrawText("F - Sair", LARGURA / 2 - 200, ALTURA / 2 + 220, 50, RAYWHITE);
 		}
 		break;
+		case GAMEOVER:
+		{
+
+			DrawRectangle(0, 0, LARGURA, ALTURA, BLACK); // Fundo da tela de game over
+			DrawText("SE LASCOU", LARGURA / 2 - 270, ALTURA / 2 - 250, 100, RAYWHITE);
+			DrawText("C - Carrega Jogo", LARGURA / 2 - 225, ALTURA / 2 - 100, 50, RED);
+			DrawText("R - Reiniciar Jogo", LARGURA / 2 - 225, ALTURA / 2 - 150, 50, RED);
+			DrawText("V - Voltar ao Menu", LARGURA / 2 - 225, ALTURA / 2 - 50, 50, RED);
+		}
+		break;
+		case VITORIA:
+		{
+
+			DrawRectangle(0, 0, LARGURA, ALTURA, GREEN); // Fundo da tela de vitoria
+			DrawText("VITORIA", LARGURA / 2 - 270, ALTURA / 2 - 150, 100, RAYWHITE);
+			DrawText("Pressione enter para ir ao título", LARGURA / 2 - 400, ALTURA / 2 - 50, 50, RED);
+		}
+
 		default:
 			break;
 		}
 
-		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
-
-		// Mostrar informacoes visuais para o usuario:
-		BeginDrawing(); // Inicia o ambiente de desenho na tela
-
-		// ClearBackground(BACKGROUND_COLOR); // Limpa a tela e define cor de fundo
-
-		desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base); // Desenha mapa e inicializa inimigos
-
-		// Move os inimigos
-		for (int i = 0; i < qtdInimigos; i++)
-		{
-			moveInimigo(&inimigo[i], &matriz[0][0], &base);
-		}
-
-		recursosColetados += coletaRecursos(&player.coordPlayer, &matriz[0][0]);
-		if (IsKeyPressed(KEY_G))
-		{
-			if (matriz[player.coordPlayer.y][player.coordPlayer.x] == ' ')
-			{
-				if (recursosColetados > 0)
-				{
-					matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
-					recursosColetados--;
-				}
-			}
-		}
-		DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 10, 20, BLACK);
-
 		EndDrawing(); // Finaliza o ambiente de desenho na tela
 	}
+
+	// Descarregar texturas
+	UnloadTexture(texturaTitulo); // Descarrega a textura da tela de titulo
 
 	CloseWindow(); // Fecha a janela e o contexto OpenGL
 

@@ -70,5 +70,6 @@ typedef enum
     TITULO,
     MENU,
     GAMEPLAY,
-    GAMEOVER
+    GAMEOVER,
+    VITORIA
 } GAMESCREEN;
