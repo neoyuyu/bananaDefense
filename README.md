@@ -1,5 +1,5 @@
 #Defesa da Banana(A.K.A Banana Defense)
 
-##VISÃO GERAL:
+##GENERAL:
 
-Este jogo apresenta
+A Tower-Defense-Like Raylib game.
