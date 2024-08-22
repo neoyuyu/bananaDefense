@@ -27,8 +27,11 @@ typedef struct
 
     COORDENADAS coordPlayer; // Coordenadas do jogador
     Color cor;               // Cor do jogador
+    int recursos;            // Recursos coletados
+    int vidas;               // Quantidade de vidas
     char letra;              // Letra que o jogador representa no mapa
     int vidas;               // Vidas do jogador
+
 
 } TIPO_PLAYER;
 

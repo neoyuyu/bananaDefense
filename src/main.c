@@ -17,6 +17,7 @@ int main(void)
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
 	estadoDoJogo.nivel = '2';
+
 	char fase[30] = {};
 	// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
 	strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
@@ -94,19 +95,17 @@ int main(void)
 				}
 			}
 
-			recursosColetados += coletaRecursos(&player.coordPlayer, &matriz[0][0]);
+
 			if (IsKeyPressed(KEY_G))
 			{
-				if (matriz[player.coordPlayer.y][player.coordPlayer.x] == ' ')
-				{
-					if (recursosColetados > 0)
+					if (player.recursos > 0)
 					{
 						matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
-						recursosColetados--;
+						player.recursos--;
 					}
-				}
 			}
-			DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 5, 20, BLACK); // Exibe a quantidade de recursos coletados
+
+			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 10, 20, BLACK); // Exibe a quantidade de recursos coletados
 			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	   // Exibe a quantidade de vidas do jogador
 			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		   // Exibe a quantidade de vidas da base
 		}

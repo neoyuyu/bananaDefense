@@ -31,6 +31,8 @@ void inicializaPlayer(TIPO_PLAYER *player)
     player->vidas = 3;   // Inicializa a vida do player
     player->cor = GREEN; // Atribui cor ao player
     player->letra = 'J'; // Letra que representa o player
+    player->recursos = 0;
+    player->vidas = 1;
 }
 
 // Funcao que atribui os valores inciciais ao inimigo
@@ -122,13 +124,50 @@ void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
     // inimigo->ultimoMovimentoY = numeroRandomDy;
 }
 
-int coletaRecursos(COORDENADAS *entidade, char *matriz)
+void contaRecursos (TIPO_PLAYER *player) {
+    (player->recursos)++;
+}
+
+// Funcao que verifica se a entidade deve mover.
+int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
 {
-    if (*(matriz + (LARGURA * entidade->x) + entidade->y) == 'R')
+    // Verifica se a entidade está dentro dos limites da tela
+    if (entidade-> coordPlayer.x == (LARGURA / LADO - 1) && entidade->coordPlayer.dx == 1)
+        return 0;
+    if (entidade->coordPlayer.x == 0 && entidade->coordPlayer.dx == -1)
+        return 0;
+    if (entidade->coordPlayer.y == (ALTURA / LADO - 1) && entidade->coordPlayer.dy == 1)
+        return 0;
+    if (entidade->coordPlayer.y == 0 && entidade->coordPlayer.dy == -1)
+        return 0;
+
+    // Verifica se a entidade está parada
+    if (entidade->coordPlayer.dx == 0 && entidade->coordPlayer.dy == 0)
+        return 0;
+
+    // Verifica se entidade está em movimento diagonal
+    if (entidade->coordPlayer.dx != 0 && entidade->coordPlayer.dy != 0)
+        return 0;
+
+    // Verifica se a entidade colidiu com algum obstaculo
+    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'W')
     {
-        return 1;
+        return 0;
     }
-    return 0;
+    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'M')
+    {
+        return 0;
+    }
+    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'S')
+        return 0;
+    
+    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'O')
+        return 0;
+
+    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'R') {
+        contaRecursos(entidade);
+    }
+    return 1;
 }
 
 // Funcao que verifica se a entidade deve mover.
@@ -157,6 +196,7 @@ int deveMover(COORDENADAS *entidade, char *matriz)
     {
         return 0;
     }
+
     // Verifica se a entidade colidiu com algum recurso
     if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'R')
     {
@@ -176,7 +216,6 @@ int deveMover(COORDENADAS *entidade, char *matriz)
     // Verifica se a entidade colidiu com jogador
     if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'J')
         return 0;
-
     return 1;
 }
 
@@ -340,6 +379,43 @@ void controleJogador(TIPO_PLAYER *entidade, char *matriz)
     {
         entidade->coordPlayer.dx = 1;
         entidade->coordPlayer.dy = 0;
+        if (deveMoverPlayer(entidade, matriz))
+            move(&entidade->coordPlayer, matriz, entidade->letra);
+    }
+
+    if (IsKeyPressed(KEY_LEFT))
+    {
+        entidade->coordPlayer.dx = -1;
+        entidade->coordPlayer.dy = 0;
+        if (deveMoverPlayer(entidade, matriz))
+            move(&entidade->coordPlayer, matriz, entidade->letra);
+    }
+
+    if (IsKeyPressed(KEY_UP))
+    {
+        entidade->coordPlayer.dx = 0;
+        entidade->coordPlayer.dy = -1;
+        if (deveMoverPlayer(entidade, matriz))
+            move(&entidade->coordPlayer, matriz, entidade->letra);
+    }
+
+    if (IsKeyPressed(KEY_DOWN))
+    {
+        entidade->coordPlayer.dx = 0;
+        entidade->coordPlayer.dy = 1;
+        if (deveMoverPlayer(entidade, matriz))
+            move(&entidade->coordPlayer, matriz, entidade->letra);
+    }
+}
+
+/*void controleJogador(TIPO_PLAYER *entidade, char *matriz)
+{
+    entidade->cor;
+
+    if (IsKeyPressed(KEY_RIGHT)) // Verifica tecla pressionada
+    {
+        entidade->coordPlayer.dx = 1;
+        entidade->coordPlayer.dy = 0;
         if (deveMover(&entidade->coordPlayer, matriz))
             move(&entidade->coordPlayer, matriz, entidade->letra);
     }
@@ -367,7 +443,7 @@ void controleJogador(TIPO_PLAYER *entidade, char *matriz)
         if (deveMover(&entidade->coordPlayer, matriz))
             move(&entidade->coordPlayer, matriz, entidade->letra);
     }
-}
+}*/
 
 // Funcao que centraliza a janela ao centro da tela
 void centerWindow(float windowWidth, float windowHeight)
