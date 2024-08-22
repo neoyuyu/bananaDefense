@@ -12,8 +12,8 @@ W                                                          W
 W      R       WWWWWWWWWWWWWWWWWWWWWWWWWWHWWWWWWWWWWWWWWWWWW
 W                                                          W
 W                                                          W
-W                            M                R            W
-W                                                          W
+W                            M                             W
+W                                             R            W
 W                                                          W
 WWWWWWWWWWWWWWWHWWWWWWWWWWWWWWWWWWWWWWWWWWWWW              W
 W                                                          W
@@ -24,7 +24,7 @@ W                                                          W
 W              WWWWWWWWWWWWWWWWWWWWWHWWWWWWWWWWWWWWWWWWWWWWW
 W                                                          W
 W                                                          W
-W                                                          W
-W                              M                      R    W
+W                                                     R    W
+W                              M                           W
 W                                                          W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
