@@ -162,7 +162,8 @@ void move(COORDENADAS *entidade, char *matriz, char letra)
     // printf("\nMoveu para %d %d", entidade->x + entidade->dx, entidade->y + entidade->dy);
     //  Realiza a movimentação
     matriz += entidade->x + entidade->y * (LARGURA / LADO);
-    *matriz = ' ';
+    if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) != 'O')
+        *matriz = ' ';
 
     entidade->x = entidade->x + entidade->dx;
     entidade->y += entidade->dy;

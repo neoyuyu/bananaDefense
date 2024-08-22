@@ -6,6 +6,7 @@
 #include <time.h>
 #include <string.h>
 
+
 // Definição de cores para uso em todo o programa
 #define COLOR_WHITE \
 	(Color) { 255, 255, 255, 255 }
