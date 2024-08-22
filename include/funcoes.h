@@ -17,7 +17,7 @@ void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo);
 int deveMover(COORDENADAS *entidade, char *matriz);
 void controleJogador(TIPO_PLAYER *entidade, char *matriz);
 void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base);
-void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz);
+void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base);
 void centerWindow(float windowWidth, float windowHeight);
 
 //----------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
 
 int coletaRecursos(COORDENADAS *entidade, char *matriz)
 {
-    if (entidade->x == 'R' && entidade->y == 'R')
+    if (*(matriz + (LARGURA*entidade->x) + entidade->y) == 'R')
     {
         return 1;
     }
@@ -195,14 +195,50 @@ void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base)
         else
         {
 
-            redefineDeslocamentoInimigo(inimigo, matriz);
+            redefineDeslocamentoInimigo(inimigo, matriz, base);
         }
     }
 }
 
-// Funcao que redefine o deslocamento do inimigo
-void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz)
+float distanciaAteBase(COORDENADAS *entidade, BASE *base)
 {
+    int distanciaX = 0;
+    int distanciaY = 0;
+
+    distanciaX = abs(entidade->x - base->coordBase.x);
+    distanciaY = abs(entidade->y - base->coordBase.y);
+
+    return (float)hypot(distanciaX, distanciaY);
+}
+
+// Funcao que redefine o deslocamento do inimigo
+void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base)
+{
+   /*
+    COORDENADAS direcoes[4] = {{.x = inimigo->coordInimigo.x, .y = inimigo->coordInimigo.y -1, .dx = 0, .dy = -1},       //cima
+                              {.x = inimigo->coordInimigo.x, .y = inimigo->coordInimigo.y +1, .dx = 0, .dy = 1},        //baixo
+                              {.x = inimigo->coordInimigo.x -1, .y = inimigo->coordInimigo.y, .dx = -1, .dy = 0},       //esquerda
+                              {.x = inimigo->coordInimigo.x +1, .y = inimigo->coordInimigo.y, .dx = 1, .dy = 0}};      //direita
+
+    COORDENADAS posicao = {.x = inimigo->coordInimigo.x, .y = inimigo->coordInimigo.y};
+    int distancias[4] = {}, distanciaMenor = INT_MAX, indice;
+
+    for (int i=0; i<4; i++){
+        distancias[i] = distanciaAteBase(&direcoes[i], base);
+        posicao.dx = direcoes[i].dx;
+        posicao.dy = direcoes[i].dy;
+        if (distancias[i] < distanciaMenor && deveMover(&posicao, matriz)){
+            distanciaMenor = distancias[i];
+            indice = i;
+        }
+
+    }
+
+    inimigo->coordInimigo.dx = direcoes[indice].dx;
+    inimigo->coordInimigo.dy = direcoes[indice].dy;
+*/
+    //printf("espaco: ->%c<- \n", *(matriz + (LARGURA * direcoes[indice].x) + direcoes[indice].y));
+   
     // Verificar negativos
 
     //  caso dx e dy sejam iguais a 0, o inimigo está parado
@@ -221,12 +257,12 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz)
         if (!deveMover(&inimigo->coordInimigo, matriz)) // Verifica se inimigo pode mover para cima
             inimigo->coordInimigo.dy = -1;              // Se nao, move para baixo
     }
-    if (inimigo->ultimoMovimentoY == -1)
+    if (inimigo->ultimoMovimentoY == -1)        //ultimo movimento pra baixo
     {
         inimigo->coordInimigo.dx = 1;
         inimigo->coordInimigo.dy = 0;
         if (!deveMover(&inimigo->coordInimigo, matriz))
-            inimigo->coordInimigo.dy = -1;
+            inimigo->coordInimigo.dx = -1;
     }
     // Verifica positivos
     if (inimigo->ultimoMovimentoX == 1)
@@ -287,17 +323,6 @@ void controleJogador(TIPO_PLAYER *entidade, char *matriz)
         if (deveMover(&entidade->coordPlayer, matriz))
             move(&entidade->coordPlayer, matriz, entidade->letra);
     }
-}
-
-float distanciaAteBase(TIPO_INIMIGO *inimigo, BASE *base)
-{
-    int distanciaX = 0;
-    int distanciaY = 0;
-
-    distanciaX = abs(inimigo->coordInimigo.x - base->coordBase.x);
-    distanciaY = abs(inimigo->coordInimigo.y - base->coordBase.y);
-
-    return (float)hypot(distanciaX, distanciaY);
 }
 
 // Funcao que centraliza a janela ao centro da tela
