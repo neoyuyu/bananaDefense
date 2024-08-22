@@ -98,6 +98,8 @@ void contaRecursos(TIPO_PLAYER *player)
 // Funcao que verifica se a entidade deve mover. Retorna 1 se deve mover, 0 se nao deve mover
 int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
 {
+    int posInicialX = entidade->coordPlayer.x;
+    int posInicialY = entidade->coordPlayer.y;
     double tempoAtual = GetTime(); // Captura o tempo atual
 
     double timerPlayer = entidade->timerDelay; // Captura o timer do inimigo
@@ -120,7 +122,7 @@ int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
             return 0;
         if (entidade->coordPlayer.y == 0 && entidade->coordPlayer.dy == -1)
             return 0;
-
+        
         // Verifica se a entidade está parada
         if (entidade->coordPlayer.dx == 0 && entidade->coordPlayer.dy == 0)
             return 0;
@@ -149,12 +151,65 @@ int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
         {
             contaRecursos(entidade);
         }
-        return 1;
+      
+        if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'H') {
+            int vaix = entidade->coordPlayer.x;
+            int vaiy = entidade->coordPlayer.y;
+            int i;
+          
+            //Deslocamento no eixo Y
+            if (entidade->coordPlayer.dy == 1 || entidade->coordPlayer.dy == -1) {
+              if (entidade->coordPlayer.dy == -1) {
+                    for (i=entidade->coordPlayer.y -1; i >=0 ; i--) {
+                        if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
+                            vaiy = i;
+                            matriz[i * (LARGURA/LADO) - entidade->coordPlayer.x] = ' ';
+                        }
+                    }
+                }
+                else if (entidade->coordPlayer.dy == 1) {
+                    for (i=entidade->coordPlayer.y+1; i<ALTURA/LADO; i++) {
+                        if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
+                            vaiy = i;
+                            matriz[i * (LARGURA/LADO) - entidade->coordPlayer.x] = ' ';
+                        }
+                    }
+                }
+            }
+
+            //Deslocamento no eixo X
+            if (entidade->coordPlayer.dx == 1 || entidade->coordPlayer.dx == -1) {
+                if (entidade->coordPlayer.dx == 1) {
+                    for (i=entidade->coordPlayer.x + 1; i<LARGURA/LADO; i++) {
+                        if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H') {
+                            vaix = i;
+                            matriz[entidade->coordPlayer.y * (LARGURA/LADO) - i] = ' ';
+                        }
+                    }
+                }
+                else if (entidade->coordPlayer.dx == -1) {
+                    for (i=entidade->coordPlayer.x -1; i>=0; i--){
+                        if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H'){
+                            vaix = i;
+                            matriz[entidade->coordPlayer.y * (LARGURA/LADO) - i] = ' ';
+                        }
+                    }
+                }
+            }
+
+            *(matriz + posInicialY *(LARGURA/LADO) + posInicialX) = ' ';
+            entidade->coordPlayer.y = vaiy;
+            entidade->coordPlayer.x = vaix;
+        }
+        else {
+            *(matriz + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA/LADO) + (entidade->coordPlayer.x + entidade->coordPlayer.dx)) = 'J'; 
+        }
     }
+    return 1; 
 }
+
 // Funcao que verifica se a entidade deve mover. Retorna 1 se deve mover, 0 se nao deve mover
-int deveMoverInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo)
-{
+int deveMoverInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo){
     // Verifica se a entidade está dentro dos limites da tela
     if (inimigo->coordInimigo.x == (LARGURA / LADO - 1) && inimigo->coordInimigo.dx == 1)
         return 0;
@@ -560,15 +615,6 @@ int leEstado(char nomeDoArquivo[30], GAMESTATUS *gameStatus)
         fclose(arq);
 
     return erro;
-}
-
-
-void passaNivel(char fase[], char *nivel)
-{
-
-    strcpy(fase, "src/fases/mapa"); // Copia o nome do arquivo para a variavel
-    strncat(fase, nivel, 1);        // Concatena o nome do arquivo com o nivel
-    strcat(fase, ".txt");           // Concatena o nome do arquivo com a extensao
 }
 
 // Funcao que desenha na tela
