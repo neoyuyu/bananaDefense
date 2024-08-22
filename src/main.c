@@ -16,7 +16,7 @@ int main(void)
 
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
-	estadoDoJogo.nivel = '0';
+	estadoDoJogo.nivel = '1';
 	char fase[30] = {};
 	// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
 	strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
@@ -60,7 +60,7 @@ int main(void)
 	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa
 
 	// Laco principal do jogo
-	while (!deveFechar) // Detectar quando o jogador fecha a janela
+	while (!deveFechar && !WindowShouldClose()) // Detectar quando o jogador fecha a janela
 	{
 
 		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
