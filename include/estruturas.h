@@ -14,7 +14,6 @@
 
 typedef struct
 {
-
     int x;  // posição x
     int y;  // posição y
     int dx; // deslocamento no eixo x

@@ -16,7 +16,7 @@ int main(void)
 
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
-	estadoDoJogo.nivel = '1';
+	estadoDoJogo.nivel = '2';
 	char fase[30] = {};
 	// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
 	strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
@@ -31,6 +31,8 @@ int main(void)
 	int contadorFrames = 0;							 // Contador de frames
 
 	int deveFechar = 0; // Variavel para fechar o jogo
+
+	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa do jogo
 
 	// Inicializar o player pela primeira vez
 	TIPO_PLAYER player;
@@ -57,8 +59,6 @@ int main(void)
 	Texture2D texturaTitulo = LoadTextureFromImage(imagemTitulo);	   // Image converted to texture, GPU memory (VRAM)
 	UnloadImage(imagemTitulo);										   // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
 
-	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa
-
 	// Laco principal do jogo
 	while (!deveFechar && !WindowShouldClose()) // Detectar quando o jogador fecha a janela
 	{
@@ -67,7 +67,7 @@ int main(void)
 
 		verificaTelaJogo(&telaAtual, &deveFechar); // Verifica a tela atual do jogo e muda conforme a tecla pressionada
 
-		verificaVidas(&player, &base, &telaAtual); // Verifica as vidas do jogador e da base
+		verificaVidas(&base, &player, &telaAtual); // Verifica as vidas do jogador e da base
 
 		//----------------------------------------------------------------------------------
 		// Mostrar informacoes visuais para o usuario:
@@ -79,7 +79,7 @@ int main(void)
 		switch (telaAtual)
 		{
 
-		case GAMEPLAY:
+		case GAMEPLAY: // Tela de jogo
 		{
 
 			desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base); // Desenha mapa e inicializa inimigos
@@ -88,7 +88,10 @@ int main(void)
 			for (int i = 0; i < MAX_INIMIGOS; i++)
 			{
 				if (inimigo[i].vidas > 0)
+				{
+					// printf("%d", inimigo[i].vidas);
 					moveInimigo(&inimigo[i], &matriz[0][0], &base, &qtdInimigos);
+				}
 			}
 
 			recursosColetados += coletaRecursos(&player.coordPlayer, &matriz[0][0]);
@@ -103,9 +106,9 @@ int main(void)
 					}
 				}
 			}
-			DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 10, 20, BLACK); // Exibe a quantidade de recursos coletados
-			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 10, 20, BLACK);		// Exibe a quantidade de vidas do jogador
-			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 10, 20, BLACK);		// Exibe a quantidade de vidas da base
+			DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 5, 20, BLACK); // Exibe a quantidade de recursos coletados
+			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	   // Exibe a quantidade de vidas do jogador
+			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		   // Exibe a quantidade de vidas da base
 		}
 		break;
 

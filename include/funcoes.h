@@ -13,10 +13,11 @@
 //----------------------------------------------------------------------------------
 void desenhaPlayer(TIPO_PLAYER *player, int posx, int posy);
 void desenhaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS], int dx, int dy);
+void move(COORDENADAS *entidade, char *matriz, char letra);
 void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo);
 int deveMover(COORDENADAS *entidade, char *matriz);
 void controleJogador(TIPO_PLAYER *entidade, char *matriz);
-void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base);
+void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdInimigo);
 void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base);
 void centerWindow(float windowWidth, float windowHeight);
 
@@ -47,6 +48,20 @@ void inicializaInimigo(TIPO_INIMIGO *inimigo)
     inimigo->coordInimigo.dy = 0; // Inicializa o deslocamento y do inimigo
 }
 
+void inicializaBase(BASE *base)
+{
+    base->vidas = 3;  // Inicializa a vida da base
+    base->cor = BLUE; // Atribui cor a base
+}
+
+void verificaVidas(BASE *base, TIPO_PLAYER *player, GAMESCREEN *tela)
+{
+    if (base->vidas == 0 || player->vidas == 0)
+    {
+        *tela = GAMEOVER;
+    }
+}
+
 // Funcao que desenha o player na tela
 void desenhaPlayer(TIPO_PLAYER *player, int posx, int posy)
 {
@@ -63,20 +78,11 @@ void desenhaPlayer(TIPO_PLAYER *player, int posx, int posy)
 // Funcao que desenha o inimigo na tela
 void desenhaInimigo(TIPO_INIMIGO *inimigo, int posx, int posy)
 {
-    if (inimigo->vidas == 0)
-    {
-        inimigo->coordInimigo.x = -1;
-        inimigo->coordInimigo.y = -1;
-        DrawRectangle(inimigo->coordInimigo.x * LADO, inimigo->coordInimigo.y * LADO, LADO, LADO, inimigo->cor); // Desenha inimigo
-    }
-    else
-    {
 
-        // Coordenadas do inimigo sao atribuidas
-        inimigo->coordInimigo.x = posx;
-        inimigo->coordInimigo.y = posy;
-        DrawRectangle(inimigo->coordInimigo.x * LADO, inimigo->coordInimigo.y * LADO, LADO, LADO, inimigo->cor); // Desenha inimigo
-    }
+    // Coordenadas do inimigo sao atribuidas
+    inimigo->coordInimigo.x = posx;
+    inimigo->coordInimigo.y = posy;
+    DrawRectangle(inimigo->coordInimigo.x * LADO, inimigo->coordInimigo.y * LADO, LADO, LADO, inimigo->cor); // Desenha inimigo
 }
 
 // Funcao que define o sentido aleatorio do inimigo
@@ -207,10 +213,15 @@ int deveMoverInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdIn
     // Verifica se a entidade colidiu com a base
     if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'S')
     {
-        printf("morreu\n");
+        *qtdInimigo = *qtdInimigo - 1; // Quantidade de inimigos diminui
         inimigo->vidas = 0;            // Inimigo desaparece
         base->vidas = base->vidas - 1; // Vida da base diminui
-        printf("%d", base->vidas);
+        matriz += inimigo->coordInimigo.x + inimigo->coordInimigo.y * (LARGURA / LADO);
+        *matriz = ' ';                // Inimigo some
+        inimigo->coordInimigo.x = -1; // Inimigo some
+        inimigo->coordInimigo.y = -1; // Inimigo some
+        moveInimigo(inimigo, matriz, base, qtdInimigo);
+
         return 0; // Inimigo nao se move para não apagar base
     }
 
@@ -223,8 +234,6 @@ int deveMoverInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdIn
 
 void move(COORDENADAS *entidade, char *matriz, char letra)
 {
-
-    // printf("\nMoveu para %d %d", entidade->x + entidade->dx, entidade->y + entidade->dy);
     //  Realiza a movimentação
     matriz += entidade->x + entidade->y * (LARGURA / LADO);
     *matriz = ' ';
@@ -279,46 +288,15 @@ float distanciaAteBase(COORDENADAS *entidade, BASE *base)
 // Funcao que redefine o deslocamento do inimigo
 void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base)
 {
-    /*
-     COORDENADAS direcoes[4] = {{.x = inimigo->coordInimigo.x, .y = inimigo->coordInimigo.y -1, .dx = 0, .dy = -1},       //cima
-                               {.x = inimigo->coordInimigo.x, .y = inimigo->coordInimigo.y +1, .dx = 0, .dy = 1},        //baixo
-                               {.x = inimigo->coordInimigo.x -1, .y = inimigo->coordInimigo.y, .dx = -1, .dy = 0},       //esquerda
-                               {.x = inimigo->coordInimigo.x +1, .y = inimigo->coordInimigo.y, .dx = 1, .dy = 0}};      //direita
-
-     COORDENADAS posicao = {.x = inimigo->coordInimigo.x, .y = inimigo->coordInimigo.y};
-     int distancias[4] = {}, distanciaMenor = INT_MAX, indice;
-
-     for (int i=0; i<4; i++){
-         distancias[i] = distanciaAteBase(&direcoes[i], base);
-         posicao.dx = direcoes[i].dx;
-         posicao.dy = direcoes[i].dy;
-         if (distancias[i] < distanciaMenor && deveMover(&posicao, matriz)){
-             distanciaMenor = distancias[i];
-             indice = i;
-         }
-
-     }
-
-     inimigo->coordInimigo.dx = direcoes[indice].dx;
-     inimigo->coordInimigo.dy = direcoes[indice].dy;
- */
-    // printf("espaco: ->%c<- \n", *(matriz + (LARGURA * direcoes[indice].x) + direcoes[indice].y));
 
     // Verificar negativos
 
     //  caso dx e dy sejam iguais a 0, o inimigo está parado
-    if (inimigo->coordInimigo.dx == 0 || inimigo->coordInimigo.dy == 0)
+    if (inimigo->coordInimigo.dx == 0 && inimigo->coordInimigo.dy == 0)
     {
-        inimigo->coordInimigo.dx = 1; // Inimigo deslocamento x
+        inimigo->coordInimigo.dx = 1; // Inimigo deslocamento x igual a -1
         if (!deveMover(&inimigo->coordInimigo, matriz))
             inimigo->coordInimigo.dx = -1;
-    }
-
-    if (inimigo->ultimoMovimentoX == 0 && inimigo->ultimoMovimentoY == 0)
-    {
-        inimigo->coordInimigo.dx = -1; // Inimigo deslocamento x igual a -1
-        if (!deveMover(&inimigo->coordInimigo, matriz))
-            inimigo->coordInimigo.dx = 1;
     }
 
     if (inimigo->ultimoMovimentoX == -1) // Se ultimo movimento foi para esquerda
@@ -351,12 +329,6 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base
         if (!deveMover(&inimigo->coordInimigo, matriz))
             inimigo->coordInimigo.dx = 1;
     }
-
-    // // Randomiza o sentido enquanto os valores forem iguais ao inicial
-    // do
-    // {
-    //     sentidoAleatorioInimigo(inimigo);
-    // } while (inimigo->coordInimigo.dx == dxInicial && inimigo->coordInimigo.dy == dyInicial);
 }
 
 // Funcao que trata controle do jogador
