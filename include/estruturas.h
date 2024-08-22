@@ -3,7 +3,7 @@
 // Constantes (macro definicoes) para uso no programa geral
 #define LARGURA 1200
 #define ALTURA 600
-#define INIMIGO_DELAY 0.3 // Delay para movimentacao do inimigo em s
+#define INIMIGO_DELAY 0.5 // Delay para movimentacao do inimigo em s
 #define LADO 20
 #define MAX_INIMIGOS 50
 #define MAX_RECURSOS 50
@@ -11,6 +11,17 @@
 //----------------------------------------------------------------------------------
 // Definição de estruturas
 //----------------------------------------------------------------------------------
+
+// Estrutura enumerada GAMESCREEN representa as telas do jogo
+typedef enum
+{
+
+    TITULO,
+    MENU,
+    GAMEPLAY,
+    GAMEOVER,
+    VITORIA
+} GAMESCREEN;
 
 typedef struct
 {
@@ -30,7 +41,8 @@ typedef struct
     int recursos;            // Recursos coletados
     char letra;              // Letra que o jogador representa no mapa
     int vidas;               // Vidas do jogador
-
+    double delayTempo;       // Quanto tempo para o delay acabar
+    double timerDelay;       // Timer para movimentacao
 
 } TIPO_PLAYER;
 
@@ -64,16 +76,7 @@ typedef struct
     int pontuacao;                    // Pontuacao do jogador no jogo
     int vidas;                        // Vidas do jogador
     char nivel;                       // Nivel do jogo
+    GAMESCREEN gamescreen;
 
 } GAMESTATUS;
 
-// Estrutura enumerada GAMESCREEN representa as telas do jogo
-typedef enum
-{
-
-    TITULO,
-    MENU,
-    GAMEPLAY,
-    GAMEOVER,
-    VITORIA
-} GAMESCREEN;
