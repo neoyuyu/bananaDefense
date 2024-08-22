@@ -17,7 +17,8 @@ int main(void)
 
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
-	estadoDoJogo.nivel = '1';
+	estadoDoJogo.nivel = '2';
+
 	char fase[30] = {};
 	// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
 	strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
@@ -28,15 +29,20 @@ int main(void)
 	char matriz[ALTURA / LADO][LARGURA / LADO] = {}; // Esta matriz representa o mapa do jogo
 	int recursosColetados = 0;						 // Recursos coletados pelo jogador
 	int qtdInimigos = 0;							 // Quantidade de inimigos lidos no mapa
-	BASE base;										 // Base do jogador
 	GAMESCREEN telaAtual = TITULO;					 // Tela inicial do jogo
 	int contadorFrames = 0;							 // Contador de frames
 
 	int deveFechar = 0; // Variavel para fechar o jogo
 
+	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa do jogo
+
 	// Inicializar o player pela primeira vez
 	TIPO_PLAYER player;
-	inicializaPlayer(&player); // Inicializa o player com valores base
+	inicializaPlayer(&player); // Funcao para inicializar o player com valores iniciais
+
+	// Inicializar a base pela primeira vez
+	BASE base;
+	inicializaBase(&base);
 
 	// Inicializar os inimigos pela primeira vez
 	TIPO_INIMIGO inimigo[MAX_INIMIGOS] = {}; // Arranjo de inimigos da estrutura TIPO_INIMIGO
@@ -50,12 +56,10 @@ int main(void)
 	centerWindow(LARGURA, ALTURA);			// Centraliza a janela do jogo ao centro da tela
 	SetTargetFPS(60);						// Ajusta a taxa de atualizacao de quadros por segundo
 
-	// Carregar textura do jogo
+	// Carregamento da textura do jogo
 	Image imagemTitulo = LoadImage("src/resources/images/jungle.png"); // Loaded in CPU memory (RAM)
 	Texture2D texturaTitulo = LoadTextureFromImage(imagemTitulo);	   // Image converted to texture, GPU memory (VRAM)
 	UnloadImage(imagemTitulo);										   // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
-
-	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa
 
 	// Laco principal do jogo
 	while (!deveFechar && !WindowShouldClose()) // Detectar quando o jogador fecha a janela
@@ -64,6 +68,8 @@ int main(void)
 		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
 
 		verificaTelaJogo(&telaAtual, &deveFechar); // Verifica a tela atual do jogo e muda conforme a tecla pressionada
+
+		verificaVidas(&base, &player, &telaAtual); // Verifica as vidas do jogador e da base
 
 		//----------------------------------------------------------------------------------
 		// Mostrar informacoes visuais para o usuario:
@@ -75,30 +81,34 @@ int main(void)
 		switch (telaAtual)
 		{
 
-		case GAMEPLAY:
+		case GAMEPLAY: // Tela de jogo
 		{
 
 			desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base); // Desenha mapa e inicializa inimigos
 
 			// Move os inimigos
-			for (int i = 0; i < qtdInimigos; i++)
+			for (int i = 0; i < MAX_INIMIGOS; i++)
 			{
-				moveInimigo(&inimigo[i], &matriz[0][0], &base);
-			}
-
-			recursosColetados += coletaRecursos(&player.coordPlayer, &matriz[0][0]);
-			if (IsKeyPressed(KEY_G))
-			{
-				if (matriz[player.coordPlayer.y][player.coordPlayer.x] == ' ')
+				if (inimigo[i].vidas > 0)
 				{
-					if (recursosColetados > 0)
-					{
-						matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
-						recursosColetados--;
-					}
+					// printf("%d", inimigo[i].vidas);
+					moveInimigo(&inimigo[i], &matriz[0][0], &base, &qtdInimigos);
 				}
 			}
-			DrawText(TextFormat("Recursos: %d", recursosColetados), 10, 10, 20, BLACK);
+
+
+			if (IsKeyPressed(KEY_G))
+			{
+					if (player.recursos > 0)
+					{
+						matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
+						player.recursos--;
+					}
+			}
+
+			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 10, 20, BLACK); // Exibe a quantidade de recursos coletados
+			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	   // Exibe a quantidade de vidas do jogador
+			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		   // Exibe a quantidade de vidas da base
 		}
 		break;
 
@@ -121,7 +131,6 @@ int main(void)
 			DrawText("L - Carregar Jogo", LARGURA / 2 - 200, ALTURA / 2 - 5, 50, RAYWHITE);
 			DrawText("S - Salvar Jogo", LARGURA / 2 - 200, ALTURA / 2 + 70, 50, RAYWHITE);
 			DrawText("V - Voltar ao Menu", LARGURA / 2 - 200, ALTURA / 2 + 145, 50, RAYWHITE);
-			DrawText("F - Sair", LARGURA / 2 - 200, ALTURA / 2 + 220, 50, RAYWHITE);
 		}
 		break;
 		case GAMEOVER:
