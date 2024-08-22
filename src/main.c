@@ -16,41 +16,30 @@ int main(void)
 
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
-	estadoDoJogo.nivel = '0';
+	estadoDoJogo.nivel = '2';
+	estadoDoJogo.gamescreen = TITULO;					 // Tela inicial do jogo
 
 	char fase[30] = {};
-	/*// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
-	strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
-	strncat(fase, &estadoDoJogo.nivel, 1); // Concatena o nome do arquivo com o nivel
-	strcat(fase, ".txt");				   // Concatena o nome do arquivo com a extensao
-	*/
 
 	// Informações sobre o jogo
 	char matriz[ALTURA / LADO][LARGURA / LADO] = {}; // Esta matriz representa o mapa do jogo
 	int recursosColetados = 0;						 // Recursos coletados pelo jogador
 	int qtdInimigos = 0;							 // Quantidade de inimigos lidos no mapa
-	GAMESCREEN telaAtual = TITULO;					 // Tela inicial do jogo
 	int contadorFrames = 0;							 // Contador de frames
 
 	int deveFechar = 0; // Variavel para fechar o jogo
 
-	passaNivel(fase, &estadoDoJogo.nivel);
-	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa do jogo
-
 	// Inicializar o player pela primeira vez
 	TIPO_PLAYER player;
-	inicializaPlayer(&player); // Funcao para inicializar o player com valores iniciais
 
 	// Inicializar a base pela primeira vez
 	BASE base;
-	inicializaBase(&base);
 
 	// Inicializar os inimigos pela primeira vez
 	TIPO_INIMIGO inimigo[MAX_INIMIGOS] = {}; // Arranjo de inimigos da estrutura TIPO_INIMIGO
-	for (int i = 0; i < MAX_INIMIGOS; i++)
-	{
-		inicializaInimigo(&inimigo[i]);
-	}
+	
+	inicializaNivel(&matriz[0][0], &fase[0], &estadoDoJogo, inimigo, &player, &base, &qtdInimigos);
+
 
 	// Inicializacoes rayLib
 	InitWindow(LARGURA, ALTURA, "Defense"); // Inicializa janela com certo tamanho e titulo
@@ -68,9 +57,9 @@ int main(void)
 
 		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
 
-		verificaTelaJogo(&telaAtual, &deveFechar, &estadoDoJogo); // Verifica a tela atual do jogo e muda conforme a tecla pressionada
+		verificaTelaJogo(&estadoDoJogo.gamescreen, &deveFechar, &estadoDoJogo); // Verifica a tela atual do jogo e muda conforme a tecla pressionada
 
-		verificaVidas(&base, &player, &telaAtual); // Verifica as vidas do jogador e da base
+		verificaVidas(&base, &player, &estadoDoJogo.gamescreen); // Verifica as vidas do jogador e da base
 
 		//----------------------------------------------------------------------------------
 		// Mostrar informacoes visuais para o usuario:
@@ -79,7 +68,7 @@ int main(void)
 
 		ClearBackground(RAYWHITE); // Limpa a tela e define cor de fundo
 
-		switch (telaAtual)
+		switch (estadoDoJogo.gamescreen)
 		{
 
 		case GAMEPLAY: // Tela de jogo

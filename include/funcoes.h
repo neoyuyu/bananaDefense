@@ -368,6 +368,61 @@ void centerWindow(float windowWidth, float windowHeight)
     SetWindowPosition((int)(monitorWidth / 2) - (int)(windowWidth / 2), (int)(monitorHeight / 2) - (int)(windowHeight / 2));
 }
 
+// Funcao que le o mapa do arquivo e conta a quantidade de inimigos
+int leMapa(char nomeDoArquivo[30], char *matriz, int *qtdInimigos)
+{
+    int erro = 1;
+    FILE *arq;
+    char caractere;
+
+    if (!(arq = fopen(nomeDoArquivo, "r")))
+    {
+        perror("Erro ao abrir o arquivo para leitura");
+        erro = 0;
+    }
+    else
+    {
+        while (!(feof(arq)))
+        {
+            caractere = getc(arq);
+            if (caractere != '\n' && caractere != '\0')
+            {
+
+                *matriz = caractere;
+
+                // Conta a quantidade de inimigos
+                if (caractere == 'M')
+                    *qtdInimigos = *qtdInimigos + 1;
+
+                matriz += sizeof(char);
+            }
+        }
+        fclose(arq);
+    }
+
+    return erro;
+}
+
+void passaNivel(char fase[], char* nivel){
+
+    strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
+	strncat(fase, nivel, 1); // Concatena o nome do arquivo com o nivel
+	strcat(fase, ".txt");				   // Concatena o nome do arquivo com a extensao
+}
+
+void inicializaNivel(char *matriz, char fase[], GAMESTATUS *estadoDoJogo, TIPO_INIMIGO inimigos[], TIPO_PLAYER *player, BASE *base, int *qtdInimigos){
+
+    passaNivel(fase, &estadoDoJogo->nivel);
+	leMapa(fase, matriz, qtdInimigos); // Leitura do mapa do jogo
+    inicializaPlayer(player); // Funcao para inicializar o player com valores iniciais
+    inicializaBase(base);
+    for (int i = 0; i < MAX_INIMIGOS; i++)
+	{
+		inicializaInimigo(&inimigos[i]);
+	}
+    
+}
+
 // Funcao que verifica a tela atual do jogo e muda de acordo com a situacao
 void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar, GAMESTATUS *estadoDoJogo)
 {
@@ -455,6 +510,7 @@ void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar, GAMESTATUS *estado
         if (IsKeyPressed(KEY_N)) // Carrega o proximo nivel
         {
             estadoDoJogo->nivel++;
+            //inicializaNivel()
             *telaAtual = GAMEPLAY;
         }
 
@@ -506,6 +562,7 @@ int leEstado(char nomeDoArquivo[30], GAMESTATUS *gameStatus)
     return erro;
 }
 
+
 void passaNivel(char fase[], char *nivel)
 {
 
@@ -521,40 +578,7 @@ void desenha(int coordX, int coordY, Color cor)
     DrawRectangle(coordX * LADO, coordY * LADO, LADO, LADO, cor); // Desenha um retangulo
 }
 
-// Funcao que le o mapa do arquivo e conta a quantidade de inimigos
-int leMapa(char nomeDoArquivo[30], char *matriz, int *qtdInimigos)
-{
-    int erro = 1;
-    FILE *arq;
-    char caractere;
 
-    if (!(arq = fopen(nomeDoArquivo, "r")))
-    {
-        perror("Erro ao abrir o arquivo para leitura");
-        erro = 0;
-    }
-    else
-    {
-        while (!(feof(arq)))
-        {
-            caractere = getc(arq);
-            if (caractere != '\n' && caractere != '\0')
-            {
-
-                *matriz = caractere;
-
-                // Conta a quantidade de inimigos
-                if (caractere == 'M')
-                    *qtdInimigos = *qtdInimigos + 1;
-
-                matriz += sizeof(char);
-            }
-        }
-        fclose(arq);
-    }
-
-    return erro;
-}
 
 void desenhaMapa(char *matriz, TIPO_PLAYER *player, TIPO_INIMIGO *inimigo, BASE *base)
 {
