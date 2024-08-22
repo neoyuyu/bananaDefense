@@ -15,10 +15,11 @@ void desenhaPlayer(TIPO_PLAYER *player, int posx, int posy);
 void desenhaInimigo(TIPO_INIMIGO inimigo[MAX_INIMIGOS], int dx, int dy);
 void move(COORDENADAS *entidade, char *matriz, char letra);
 void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo);
-int deveMover(COORDENADAS *entidade, char *matriz);
+int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz);
+int deveMoverInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo);
 void controleJogador(TIPO_PLAYER *entidade, char *matriz);
-void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdInimigo);
-void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base);
+void moveInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo);
+void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo);
 void centerWindow(float windowWidth, float windowHeight);
 
 //----------------------------------------------------------------------------------
@@ -28,11 +29,12 @@ void centerWindow(float windowWidth, float windowHeight);
 // Funcao que atribui os valores iniciais ao player
 void inicializaPlayer(TIPO_PLAYER *player)
 {
-    player->vidas = 3;   // Inicializa a vida do player
-    player->cor = GREEN; // Atribui cor ao player
-    player->letra = 'J'; // Letra que representa o player
-    player->recursos = 0;
-    player->vidas = 1;
+    player->vidas = 3;        // Inicializa a vida do player
+    player->cor = GREEN;      // Atribui cor ao player
+    player->letra = 'J';      // Letra que representa o player
+    player->recursos = 0;     // Inicializa a quantidade de recursos coletados
+    player->delayTempo = 0.2; // Delay para movimentacao do player
+    player->timerDelay = 0;   // Inicializa o timer do player
 }
 
 // Funcao que atribui os valores inciciais ao inimigo
@@ -50,12 +52,13 @@ void inicializaInimigo(TIPO_INIMIGO *inimigo)
     inimigo->coordInimigo.dy = 0; // Inicializa o deslocamento y do inimigo
 }
 
+// Funcao que inicializa a base pela primeira vez
 void inicializaBase(BASE *base)
 {
     base->vidas = 3;  // Inicializa a vida da base
     base->cor = BLUE; // Atribui cor a base
 }
-
+// Funcao que verifica a quantidade de vidas da base e do player
 void verificaVidas(BASE *base, TIPO_PLAYER *player, GAMESCREEN *tela)
 {
     if (base->vidas == 0 || player->vidas == 0)
@@ -87,182 +90,70 @@ void desenhaInimigo(TIPO_INIMIGO *inimigo, int posx, int posy)
     DrawRectangle(inimigo->coordInimigo.x * LADO, inimigo->coordInimigo.y * LADO, LADO, LADO, inimigo->cor); // Desenha inimigo
 }
 
-// Funcao que define o sentido aleatorio do inimigo
-void sentidoAleatorioInimigo(TIPO_INIMIGO *inimigo)
+void contaRecursos(TIPO_PLAYER *player)
 {
-    // Gerar sentido aleatorio:
-
-    // srand(time(NULL)); // seed atrelada ao tempo do computador, deixa mais devagar.
-
-    // Ao subtrair -1 de um numero aleatorio entre 0 e 2, gera um numero entre -1 e 1
-    // Variaveis contendo o sentido de deslocamento do inimigo.
-    int numeroRandomDx = (rand() % 3) - 1; // Numero entre -1 e 1
-    int numeroRandomDy = (rand() % 3) - 1; // Numero entre -1 e 1
-
-    if (numeroRandomDx != 0)
-        numeroRandomDy = 0;
-    else if (numeroRandomDy != 0)
-        numeroRandomDx = 0;
-
-    // Se o numeroRandom for 0, deve-se retirar outro numero aleatorio
-    while (numeroRandomDx == 0 && numeroRandomDy == 0)
-    {
-        numeroRandomDx = (rand() % 3) - 1;
-        numeroRandomDy = (rand() % 3) - 1;
-
-        if (numeroRandomDx != 0)
-            numeroRandomDy = 0;
-        else if (numeroRandomDy != 0)
-            numeroRandomDx = 0;
-    }
-
-    // Define o deslocameto aleatorio do inimigo
-    inimigo->coordInimigo.dx = numeroRandomDx;
-    // inimigo->ultimoMovimentoX = numeroRandomDx;
-
-    inimigo->coordInimigo.dy = numeroRandomDy;
-    // inimigo->ultimoMovimentoY = numeroRandomDy;
-}
-
-void contaRecursos (TIPO_PLAYER *player) {
     (player->recursos)++;
 }
 
-// Funcao que verifica se a entidade deve mover.
-int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
+// Funcao que verifica se a entidade deve mover. Retorna 1 se deve mover, 0 se nao deve mover
+int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
 {
-    // Verifica se a entidade está dentro dos limites da tela
-    if (entidade->coordPlayer.x == (LARGURA / LADO - 1) && entidade->coordPlayer.dx == 1)
-        return 0;
-    if (entidade->coordPlayer.x == 0 && entidade->coordPlayer.dx == -1)
-        return 0;
-    if (entidade->coordPlayer.y == (ALTURA / LADO - 1) && entidade->coordPlayer.dy == 1)
-        return 0;
-    if (entidade->coordPlayer.y == 0 && entidade->coordPlayer.dy == -1)
-        return 0;
+    double tempoAtual = GetTime(); // Captura o tempo atual
 
-    // Verifica se a entidade está parada
-    if (entidade->coordPlayer.dx == 0 && entidade->coordPlayer.dy == 0)
-        return 0;
+    double timerPlayer = entidade->timerDelay; // Captura o timer do inimigo
 
-    // Verifica se entidade está em movimento diagonal
-    if (entidade->coordPlayer.dx != 0 && entidade->coordPlayer.dy != 0)
-        return 0;
-
-    // Verifica se a entidade colidiu com algum obstaculo
-    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'W')
+    // Se o tempo decorrido desde o ultimo movimento inimigo for maior ou igual ao delay
+    if (tempoAtual - timerPlayer < entidade->delayTempo)
     {
         return 0;
     }
-    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'M')
+    else
     {
-        return 0;
-    }
-    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'S')
-        return 0;
-    
-    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'O')
-        return 0;
+        entidade->timerDelay = tempoAtual; // Atualiza o timer do inimigo para o tempo atual
 
-    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'R') {
-        contaRecursos(entidade);
-    }
+        // Verifica se a entidade está dentro dos limites da tela
+        if (entidade->coordPlayer.x == (LARGURA / LADO - 1) && entidade->coordPlayer.dx == 1)
+            return 0;
+        if (entidade->coordPlayer.x == 0 && entidade->coordPlayer.dx == -1)
+            return 0;
+        if (entidade->coordPlayer.y == (ALTURA / LADO - 1) && entidade->coordPlayer.dy == 1)
+            return 0;
+        if (entidade->coordPlayer.y == 0 && entidade->coordPlayer.dy == -1)
+            return 0;
 
-    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'H') {
-        int vaix = entidade->coordPlayer.x;
-        int vaiy = entidade->coordPlayer.y;
-        int i;
-        //Deslocamento no eixo Y
-        if (entidade->coordPlayer.dy == 1 || entidade->coordPlayer.dy == -1) {
-            if (entidade->coordPlayer.dy == -1) {
-                for (i=0; i<entidade->coordPlayer.y; i++) {
-                    if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
-                        vaiy = i;
-                    }
-                }
-            }
-            else if (entidade->coordPlayer.dy == 1) {
-                for (i=entidade->coordPlayer.y+1; i<ALTURA/LADO; i++) {
-                    if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
-                        vaiy = i;
-                    }
-                }
-            }
+        // Verifica se a entidade está parada
+        if (entidade->coordPlayer.dx == 0 && entidade->coordPlayer.dy == 0)
+            return 0;
+
+        // Verifica se entidade está em movimento diagonal
+        if (entidade->coordPlayer.dx != 0 && entidade->coordPlayer.dy != 0)
+            return 0;
+
+        // Verifica se a entidade colidiu com algum obstaculo
+        if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'W')
+        {
+            return 0;
         }
-
-        //Deslocamento no eixo X
-        if (entidade->coordPlayer.dx == 1 || entidade->coordPlayer.dx == -1) {
-            if (entidade->coordPlayer.dx == 1) {
-                for (i=0; i<LARGURA/LADO; i++) {
-                    if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H') {
-                        vaix = i;
-                    }
-                }
-            }
-             else if (entidade->coordPlayer.dx == -1) {
-                for (i=0; i<entidade->coordPlayer.x; i++){
-                    if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H'){
-                        vaix = i;
-                    }
-                }
-            }
+        if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'M')
+        {
+            entidade->vidas--; // Jogador perde vida por tentar passar por inimigo
+            return 0;
         }
+        if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'S')
+            return 0;
 
-        entidade->coordPlayer.y = vaiy;
-        entidade->coordPlayer.x = vaix;
-    }
-    return 1;
-}
+        if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'O')
+            return 0;
 
-// Funcao que verifica se a entidade deve mover.
-int deveMover(COORDENADAS *entidade, char *matriz)
-{
-    // Verifica se a entidade está dentro dos limites da tela
-    if (entidade->x == (LARGURA / LADO - 1) && entidade->dx == 1)
-        return 0;
-    if (entidade->x == 0 && entidade->dx == -1)
-        return 0;
-    if (entidade->y == (ALTURA / LADO - 1) && entidade->dy == 1)
-        return 0;
-    if (entidade->y == 0 && entidade->dy == -1)
-        return 0;
-
-    // Verifica se a entidade está parada
-    if (entidade->dx == 0 && entidade->dy == 0)
-        return 0;
-
-    // Verifica se entidade está em movimento diagonal
-    if (entidade->dx != 0 && entidade->dy != 0)
-        return 0;
-
-    // Verifica se a entidade colidiu com algum obstaculo
-    if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'W')
-    {
-        return 0;
-    }
-
-    // Verifica se a entidade colidiu com algum recurso
-    if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'R')
-    {
+        if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'R')
+        {
+            contaRecursos(entidade);
+        }
         return 1;
     }
-
-    // Verifica se a entidade colidiu com algum inimigo
-    if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'M')
-    {
-        return 0;
-    }
-    // Verifica se a entidade colidiu com a base
-    if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'S')
-        return 0;
-
-    // Verifica se a entidade colidiu com jogador
-    if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'J')
-        return 0;
-    return 1;
 }
-
-int deveMoverInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdInimigo)
+// Funcao que verifica se a entidade deve mover. Retorna 1 se deve mover, 0 se nao deve mover
+int deveMoverInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo)
 {
     // Verifica se a entidade está dentro dos limites da tela
     if (inimigo->coordInimigo.x == (LARGURA / LADO - 1) && inimigo->coordInimigo.dx == 1)
@@ -278,12 +169,42 @@ int deveMoverInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdIn
     if (inimigo->coordInimigo.dx == 0 && inimigo->coordInimigo.dy == 0)
         return 0;
 
-    // Verifica se a entidade colidiu com algum obstaculo
+    // Verifica se a entidade colidiu com parede
     if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'W')
-    {
-        inimigo->vidas = 0;
+    { // Desenha espaco em branco na posicao do inimigo
         return 0;
     }
+
+    // Verifica se a entidade colidiu com algum jogador
+    if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'J')
+    {
+        player->vidas--; // Jogador perde vida por colidir com inimigo
+        return 0;
+    }
+
+    // Verifica se a entidade colidiu com obstaculo
+    if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'O')
+    {
+        *qtdInimigo--;                                                                                                                                    // Quantidade de inimigos diminui
+        inimigo->vidas--;                                                                                                                                 // Inimigo perde vida
+        *(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) = ' '; // Desenha espaco em branco na posicao obstaculo
+        matriz += inimigo->coordInimigo.x + inimigo->coordInimigo.y * (LARGURA / LADO);                                                                   // Matriz recebe a posicao do inimigo
+        *matriz = ' ';                                                                                                                                    // Desenha espaco em branco na posicao do inimigo
+        return 0;
+    }
+
+    // Verifica se a entidade colidiu com a base
+    if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'S')
+    {
+        *qtdInimigo--;                                                                  // Quantidade de inimigos diminui
+        base->vidas--;                                                                  // Vida da base diminui
+        inimigo->vidas--;                                                               // Inimigo vidas diminui
+        matriz += inimigo->coordInimigo.x + inimigo->coordInimigo.y * (LARGURA / LADO); // Matriz recebe a posicao do inimigo
+        *matriz = ' ';                                                                  // Desenha espaco em branco na posicao do inimigo
+
+        return 0; // Inimigo nao se move para não apagar base
+    }
+
     // Verifica se a entidade colidiu com algum recurso
     if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'R')
         return 0;
@@ -291,21 +212,6 @@ int deveMoverInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdIn
     // Verifica se a entidade colidiu com algum inimigo
     if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'M')
         return 0;
-
-    // Verifica se a entidade colidiu com a base
-    if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'S')
-    {
-        *qtdInimigo = *qtdInimigo - 1; // Quantidade de inimigos diminui
-        inimigo->vidas = 0;            // Inimigo desaparece
-        base->vidas = base->vidas - 1; // Vida da base diminui
-        matriz += inimigo->coordInimigo.x + inimigo->coordInimigo.y * (LARGURA / LADO);
-        *matriz = ' ';                // Inimigo some
-        inimigo->coordInimigo.x = -1; // Inimigo some
-        inimigo->coordInimigo.y = -1; // Inimigo some
-        moveInimigo(inimigo, matriz, base, qtdInimigo);
-
-        return 0; // Inimigo nao se move para não apagar base
-    }
 
     // Verifica se a entidade colidiu com jogador, inimigo perde vida?
     if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'J')
@@ -318,7 +224,7 @@ void move(COORDENADAS *entidade, char *matriz, char letra)
 {
     //  Realiza a movimentação
     matriz += entidade->x + entidade->y * (LARGURA / LADO);
-    if (*matriz != 'O')
+    if (*matriz != 'O' && *matriz != 'H')
         *matriz = ' ';
 
     entidade->x = entidade->x + entidade->dx;
@@ -329,7 +235,7 @@ void move(COORDENADAS *entidade, char *matriz, char letra)
 }
 
 // Funcao que move o inimigo
-void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdInimigo)
+void moveInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo)
 {
 
     double tempoAtual = GetTime(); // Captura o tempo atual
@@ -343,7 +249,7 @@ void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdInimig
         inimigo->timer = tempoAtual; // Atualiza o timer do inimigo para o tempo atual
 
         // Verifica se inimigo deve mover
-        if (deveMoverInimigo(inimigo, matriz, base, qtdInimigo))
+        if (deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
         {
             move(&inimigo->coordInimigo, matriz, inimigo->letra);
             inimigo->ultimoMovimentoX = inimigo->coordInimigo.dx;
@@ -352,7 +258,7 @@ void moveInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base, int *qtdInimig
         else
         {
 
-            redefineDeslocamentoInimigo(inimigo, matriz, base);
+            redefineDeslocamentoInimigo(inimigo, player, matriz, base, qtdInimigo);
         }
     }
 }
@@ -369,7 +275,7 @@ float distanciaAteBase(COORDENADAS *entidade, BASE *base)
 }
 
 // Funcao que redefine o deslocamento do inimigo
-void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base)
+void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo)
 {
 
     // Verificar negativos
@@ -378,7 +284,7 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base
     if (inimigo->coordInimigo.dx == 0 && inimigo->coordInimigo.dy == 0)
     {
         inimigo->coordInimigo.dx = 1; // Inimigo deslocamento x igual a -1
-        if (!deveMover(&inimigo->coordInimigo, matriz))
+        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
             inimigo->coordInimigo.dx = -1;
     }
 
@@ -386,15 +292,15 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base
     {
         // Inimigo deslocamento x igual a 0, pois inimigo nao pode ir para direita e houve uma colisao na esquerda
         inimigo->coordInimigo.dx = 0;
-        inimigo->coordInimigo.dy = 1;                   // Inimigo deslocamento y igual a 1
-        if (!deveMover(&inimigo->coordInimigo, matriz)) // Verifica se inimigo pode mover para cima
-            inimigo->coordInimigo.dy = -1;              // Se nao, move para baixo
+        inimigo->coordInimigo.dy = 1;                                     // Inimigo deslocamento y igual a 1
+        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo)) // Verifica se inimigo pode mover para cima
+            inimigo->coordInimigo.dy = -1;                                // Se nao, move para baixo
     }
     if (inimigo->ultimoMovimentoY == -1) // ultimo movimento pra baixo
     {
         inimigo->coordInimigo.dx = 1;
         inimigo->coordInimigo.dy = 0;
-        if (!deveMover(&inimigo->coordInimigo, matriz))
+        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
             inimigo->coordInimigo.dx = -1;
     }
     // Verifica positivos
@@ -402,14 +308,14 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base
     {
         inimigo->coordInimigo.dx = 0;
         inimigo->coordInimigo.dy = 1;
-        if (!deveMover(&inimigo->coordInimigo, matriz))
+        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
             inimigo->coordInimigo.dy = -1;
     }
     if (inimigo->ultimoMovimentoY == 1)
     {
         inimigo->coordInimigo.dx = -1;
         inimigo->coordInimigo.dy = 0;
-        if (!deveMover(&inimigo->coordInimigo, matriz))
+        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
             inimigo->coordInimigo.dx = 1;
     }
 }
@@ -417,9 +323,8 @@ void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, char *matriz, BASE *base
 // Funcao que trata controle do jogador
 void controleJogador(TIPO_PLAYER *entidade, char *matriz)
 {
-    entidade->cor;
 
-    if (IsKeyPressed(KEY_RIGHT)) // Verifica tecla pressionada
+    if (IsKeyPressed(KEY_RIGHT) || IsKeyDown(KEY_RIGHT)) // Verifica tecla pressionada
     {
         entidade->coordPlayer.dx = 1;
         entidade->coordPlayer.dy = 0;
@@ -427,7 +332,7 @@ void controleJogador(TIPO_PLAYER *entidade, char *matriz)
             move(&entidade->coordPlayer, matriz, entidade->letra);
     }
 
-    if (IsKeyPressed(KEY_LEFT))
+    if (IsKeyPressed(KEY_LEFT) || IsKeyDown(KEY_LEFT))
     {
         entidade->coordPlayer.dx = -1;
         entidade->coordPlayer.dy = 0;
@@ -435,7 +340,7 @@ void controleJogador(TIPO_PLAYER *entidade, char *matriz)
             move(&entidade->coordPlayer, matriz, entidade->letra);
     }
 
-    if (IsKeyPressed(KEY_UP))
+    if (IsKeyPressed(KEY_UP) || IsKeyDown(KEY_UP))
     {
         entidade->coordPlayer.dx = 0;
         entidade->coordPlayer.dy = -1;
@@ -443,7 +348,7 @@ void controleJogador(TIPO_PLAYER *entidade, char *matriz)
             move(&entidade->coordPlayer, matriz, entidade->letra);
     }
 
-    if (IsKeyPressed(KEY_DOWN))
+    if (IsKeyPressed(KEY_DOWN) || IsKeyDown(KEY_DOWN))
     {
         entidade->coordPlayer.dx = 0;
         entidade->coordPlayer.dy = 1;
@@ -451,43 +356,6 @@ void controleJogador(TIPO_PLAYER *entidade, char *matriz)
             move(&entidade->coordPlayer, matriz, entidade->letra);
     }
 }
-
-/*void controleJogador(TIPO_PLAYER *entidade, char *matriz)
-{
-    entidade->cor;
-
-    if (IsKeyPressed(KEY_RIGHT)) // Verifica tecla pressionada
-    {
-        entidade->coordPlayer.dx = 1;
-        entidade->coordPlayer.dy = 0;
-        if (deveMover(&entidade->coordPlayer, matriz))
-            move(&entidade->coordPlayer, matriz, entidade->letra);
-    }
-
-    if (IsKeyPressed(KEY_LEFT))
-    {
-        entidade->coordPlayer.dx = -1;
-        entidade->coordPlayer.dy = 0;
-        if (deveMover(&entidade->coordPlayer, matriz))
-            move(&entidade->coordPlayer, matriz, entidade->letra);
-    }
-
-    if (IsKeyPressed(KEY_UP))
-    {
-        entidade->coordPlayer.dx = 0;
-        entidade->coordPlayer.dy = -1;
-        if (deveMover(&entidade->coordPlayer, matriz))
-            move(&entidade->coordPlayer, matriz, entidade->letra);
-    }
-
-    if (IsKeyPressed(KEY_DOWN))
-    {
-        entidade->coordPlayer.dx = 0;
-        entidade->coordPlayer.dy = 1;
-        if (deveMover(&entidade->coordPlayer, matriz))
-            move(&entidade->coordPlayer, matriz, entidade->letra);
-    }
-}*/
 
 // Funcao que centraliza a janela ao centro da tela
 void centerWindow(float windowWidth, float windowHeight)
@@ -595,7 +463,6 @@ void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar, GAMESTATUS *estado
         {
             *telaAtual = MENU;
         }
-        
     }
     break;
 
@@ -696,6 +563,13 @@ int leEstado(char nomeDoArquivo[30], GAMESTATUS *gameStatus)
 }
 
 
+void passaNivel(char fase[], char *nivel)
+{
+
+    strcpy(fase, "src/fases/mapa"); // Copia o nome do arquivo para a variavel
+    strncat(fase, nivel, 1);        // Concatena o nome do arquivo com o nivel
+    strcat(fase, ".txt");           // Concatena o nome do arquivo com a extensao
+}
 
 // Funcao que desenha na tela
 void desenha(int coordX, int coordY, Color cor)
