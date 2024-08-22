@@ -200,7 +200,6 @@ int deveMover(COORDENADAS *entidade, char *matriz)
     // Verifica se a entidade colidiu com algum recurso
     if (*(matriz + (entidade->x + entidade->dx) + (entidade->y + entidade->dy) * (LARGURA / LADO)) == 'R')
     {
-        coletaRecursos(entidade, matriz);
         return 1;
     }
 
