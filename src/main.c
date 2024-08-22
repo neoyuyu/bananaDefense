@@ -16,7 +16,7 @@ int main(void)
 
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
-	estadoDoJogo.nivel = '2';
+	estadoDoJogo.nivel = '1';
 	estadoDoJogo.gamescreen = TITULO;					 // Tela inicial do jogo
 
 	char fase[30] = {};

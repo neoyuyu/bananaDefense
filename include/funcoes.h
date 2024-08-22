@@ -202,7 +202,6 @@ int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
             entidade->coordPlayer.x = vaix;
         }
         else {
-            *(matriz + posInicialY *(LARGURA/LADO) + posInicialX) = ' ';
             *(matriz + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA/LADO) + (entidade->coordPlayer.x + entidade->coordPlayer.dx)) = 'J'; 
         }
     }
