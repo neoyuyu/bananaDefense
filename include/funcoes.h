@@ -131,6 +131,8 @@ void contaRecursos (TIPO_PLAYER *player) {
 // Funcao que verifica se a entidade deve mover.
 int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
 {
+    int posInicialX = entidade->coordPlayer.x;
+    int posInicialY = entidade->coordPlayer.y;
     // Verifica se a entidade está dentro dos limites da tela
     if (entidade->coordPlayer.x == (LARGURA / LADO - 1) && entidade->coordPlayer.dx == 1)
         return 0;
@@ -178,6 +180,7 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
                 for (i=0; i<entidade->coordPlayer.y; i++) {
                     if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
                         vaiy = i;
+                        matriz[i * (LARGURA/LADO) - entidade->coordPlayer.x] = ' ';
                     }
                 }
             }
@@ -185,6 +188,7 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
                 for (i=entidade->coordPlayer.y+1; i<ALTURA/LADO; i++) {
                     if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
                         vaiy = i;
+                        matriz[i * (LARGURA/LADO) - entidade->coordPlayer.x] = ' ';
                     }
                 }
             }
@@ -196,6 +200,7 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
                 for (i=0; i<LARGURA/LADO; i++) {
                     if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H') {
                         vaix = i;
+                        matriz[entidade->coordPlayer.y * (LARGURA/LADO) - i] = ' ';
                     }
                 }
             }
@@ -203,13 +208,19 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
                 for (i=0; i<entidade->coordPlayer.x; i++){
                     if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H'){
                         vaix = i;
+                        matriz[entidade->coordPlayer.y * (LARGURA/LADO) - i] = ' ';
                     }
                 }
             }
         }
 
+        *(matriz + posInicialY *(LARGURA/LADO) + posInicialX) = ' ';
         entidade->coordPlayer.y = vaiy;
         entidade->coordPlayer.x = vaix;
+    }
+    else {
+       *(matriz + posInicialY *(LARGURA/LADO) + posInicialX) = ' ';
+       *(matriz + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA/LADO) + (entidade->coordPlayer.x + entidade->coordPlayer.dx)) = 'J'; 
     }
     return 1;
 }
@@ -318,7 +329,7 @@ void move(COORDENADAS *entidade, char *matriz, char letra)
 {
     //  Realiza a movimentação
     matriz += entidade->x + entidade->y * (LARGURA / LADO);
-    if (*matriz != 'O')
+    if (*matriz != 'O' && *matriz != 'H')
         *matriz = ' ';
 
     entidade->x = entidade->x + entidade->dx;
