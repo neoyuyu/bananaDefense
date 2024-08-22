@@ -12,6 +12,17 @@
 // Definição de estruturas
 //----------------------------------------------------------------------------------
 
+// Estrutura enumerada GAMESCREEN representa as telas do jogo
+typedef enum
+{
+
+    TITULO,
+    MENU,
+    GAMEPLAY,
+    GAMEOVER,
+    VITORIA
+} GAMESCREEN;
+
 typedef struct
 {
     int x;  // posição x
@@ -64,16 +75,7 @@ typedef struct
     int pontuacao;                    // Pontuacao do jogador no jogo
     int vidas;                        // Vidas do jogador
     char nivel;                       // Nivel do jogo
+    GAMESCREEN gamescreen;
 
 } GAMESTATUS;
 
-// Estrutura enumerada GAMESCREEN representa as telas do jogo
-typedef enum
-{
-
-    TITULO,
-    MENU,
-    GAMEPLAY,
-    GAMEOVER,
-    VITORIA
-} GAMESCREEN;
