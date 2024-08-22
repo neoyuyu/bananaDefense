@@ -105,7 +105,7 @@ int main(void)
 					}
 			}
 
-			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 10, 20, BLACK); // Exibe a quantidade de recursos coletados
+			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 5, 20, BLACK); // Exibe a quantidade de recursos coletados
 			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	   // Exibe a quantidade de vidas do jogador
 			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		   // Exibe a quantidade de vidas da base
 		}
