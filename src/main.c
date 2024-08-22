@@ -16,7 +16,7 @@ int main(void)
 
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
-	estadoDoJogo.nivel = '2';
+	estadoDoJogo.nivel = '0';
 
 	char fase[30] = {};
 	// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
@@ -89,25 +89,21 @@ int main(void)
 			for (int i = 0; i < MAX_INIMIGOS; i++)
 			{
 				if (inimigo[i].vidas > 0)
-				{
-					// printf("%d", inimigo[i].vidas);
-					moveInimigo(&inimigo[i], &matriz[0][0], &base, &qtdInimigos);
-				}
+					moveInimigo(&inimigo[i], &player, &matriz[0][0], &base, &qtdInimigos);
 			}
-
 
 			if (IsKeyPressed(KEY_G))
 			{
-					if (player.recursos > 0)
-					{
-						matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
-						player.recursos--;
-					}
+				if (player.recursos > 0)
+				{
+					matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
+					player.recursos--;
+				}
 			}
 
 			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 10, 20, BLACK); // Exibe a quantidade de recursos coletados
-			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	   // Exibe a quantidade de vidas do jogador
-			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		   // Exibe a quantidade de vidas da base
+			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	  // Exibe a quantidade de vidas do jogador
+			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		  // Exibe a quantidade de vidas da base
 		}
 		break;
 
