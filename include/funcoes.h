@@ -132,7 +132,7 @@ void contaRecursos (TIPO_PLAYER *player) {
 int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
 {
     // Verifica se a entidade está dentro dos limites da tela
-    if (entidade-> coordPlayer.x == (LARGURA / LADO - 1) && entidade->coordPlayer.dx == 1)
+    if (entidade->coordPlayer.x == (LARGURA / LADO - 1) && entidade->coordPlayer.dx == 1)
         return 0;
     if (entidade->coordPlayer.x == 0 && entidade->coordPlayer.dx == -1)
         return 0;
@@ -166,6 +166,50 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
 
     if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'R') {
         contaRecursos(entidade);
+    }
+
+    if (*(matriz + (entidade->coordPlayer.x + entidade->coordPlayer.dx) + (entidade->coordPlayer.y + entidade->coordPlayer.dy) * (LARGURA / LADO)) == 'H') {
+        int vaix = entidade->coordPlayer.x;
+        int vaiy = entidade->coordPlayer.y;
+        int i;
+        //Deslocamento no eixo Y
+        if (entidade->coordPlayer.dy == 1 || entidade->coordPlayer.dy == -1) {
+            if (entidade->coordPlayer.dy == -1) {
+                for (i=0; i<entidade->coordPlayer.y; i++) {
+                    if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
+                        vaiy = i;
+                    }
+                }
+            }
+            else if (entidade->coordPlayer.dy == 1) {
+                for (i=entidade->coordPlayer.y+1; i<ALTURA/LADO; i++) {
+                    if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
+                        vaiy = i;
+                    }
+                }
+            }
+        }
+
+        //Deslocamento no eixo X
+        if (entidade->coordPlayer.dx == 1 || entidade->coordPlayer.dx == -1) {
+            if (entidade->coordPlayer.dx == 1) {
+                for (i=0; i<LARGURA/LADO; i++) {
+                    if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H') {
+                        vaix = i;
+                    }
+                }
+            }
+             else if (entidade->coordPlayer.dx == -1) {
+                for (i=0; i<entidade->coordPlayer.x; i++){
+                    if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H'){
+                        vaix = i;
+                    }
+                }
+            }
+        }
+
+        entidade->coordPlayer.y = vaiy;
+        entidade->coordPlayer.x = vaix;
     }
     return 1;
 }
