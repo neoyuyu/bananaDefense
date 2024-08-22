@@ -257,7 +257,6 @@ void moveInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE 
         }
         else
         {
-
             redefineDeslocamentoInimigo(inimigo, player, matriz, base, qtdInimigo);
         }
     }
@@ -273,50 +272,125 @@ float distanciaAteBase(COORDENADAS *entidade, BASE *base)
 
     return (float)hypot(distanciaX, distanciaY);
 }
+// Funcao que gira o sentido do inimigo aleatoriamente
+void direcaoAleatoria(int *dx, int *dy)
+{
 
-// Funcao que redefine o deslocamento do inimigo
+    int direcao = GetRandomValue(0, 1); // Gera um valor aleatorio entre 0 e 1
+    // Ultima direcao foi parada, entao tenta andar para esquerda
+    if (*dx == 0 && *dy == 0)
+    {
+        *dx = -1;
+        *dy = 0;
+    }
+    // Ultima direcao foi para esquerda tenta andar para cima ou baixo
+    else if (*dx == -1 && *dy == 0)
+    {
+        if (direcao == 0)
+        {
+            *dx = 0;
+            *dy = -1;
+        }
+        else if (direcao == 1)
+        {
+            *dx = 0;
+            *dy = 1;
+        }
+    }
+    else if (*dx == -1 || *dx == 1)
+    {
+        if (direcao == 0)
+        {
+            *dx = 0;
+            *dy = 1;
+        }
+        else if (direcao == 1)
+        {
+            *dx = 0;
+            *dy = -1;
+        }
+    }
+    else if (*dy == -1 || *dy == 1)
+    {
+        if (direcao == 0)
+        {
+            *dx = 0;
+            *dy = 1;
+        }
+        else if (direcao == 1)
+        {
+            *dx = 0;
+            *dy = -1;
+        }
+    }
+    else if (*dx == 0 && *dy == 1)
+    {
+        if (direcao == 0)
+        {
+            *dx = 1;
+            *dy = 0;
+        }
+        else if (direcao == 1)
+        {
+            *dx = -1;
+            *dy = 0;
+        }
+    }
+    else if (*dx == -1 && *dy == 0)
+    {
+        if (direcao == 0)
+        {
+            *dx = 0;
+            *dy = 1;
+        }
+        else if (direcao == 1)
+        {
+            *dx = 0;
+            *dy = -1;
+        }
+    }
+    else if (*dx == 0 && *dy == -1)
+    {
+        if (direcao == 0)
+        {
+            *dx = 1;
+            *dy = 0;
+        }
+        else if (direcao == 1)
+        {
+            *dx = -1;
+            *dy = 0;
+        }
+    }
+}
+
+// Funcao que redefine o deslocamento do inimigo e move para direcao valida
 void redefineDeslocamentoInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo)
 {
 
-    // Verificar negativos
-
-    //  caso dx e dy sejam iguais a 0, o inimigo está parado
-    if (inimigo->coordInimigo.dx == 0 && inimigo->coordInimigo.dy == 0)
+    direcaoAleatoria(&(inimigo->coordInimigo.dx), &(inimigo->coordInimigo.dy));
+    if (deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
     {
-        inimigo->coordInimigo.dx = 1; // Inimigo deslocamento x igual a -1
-        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
-            inimigo->coordInimigo.dx = -1;
+        move(&inimigo->coordInimigo, matriz, inimigo->letra);
     }
-
-    if (inimigo->ultimoMovimentoX == -1) // Se ultimo movimento foi para esquerda
+    else
     {
-        // Inimigo deslocamento x igual a 0, pois inimigo nao pode ir para direita e houve uma colisao na esquerda
-        inimigo->coordInimigo.dx = 0;
-        inimigo->coordInimigo.dy = 1;                                     // Inimigo deslocamento y igual a 1
-        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo)) // Verifica se inimigo pode mover para cima
-            inimigo->coordInimigo.dy = -1;                                // Se nao, move para baixo
-    }
-    if (inimigo->ultimoMovimentoY == -1) // ultimo movimento pra baixo
-    {
-        inimigo->coordInimigo.dx = 1;
-        inimigo->coordInimigo.dy = 0;
-        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
-            inimigo->coordInimigo.dx = -1;
-    }
-    // Verifica positivos
-    if (inimigo->ultimoMovimentoX == 1)
-    {
-        inimigo->coordInimigo.dx = 0;
-        inimigo->coordInimigo.dy = 1;
-        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
-            inimigo->coordInimigo.dy = -1;
-    }
-    if (inimigo->ultimoMovimentoY == 1)
-    {
-        inimigo->coordInimigo.dx = -1;
-        inimigo->coordInimigo.dy = 0;
-        if (!deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
-            inimigo->coordInimigo.dx = 1;
+        inimigo->coordInimigo.dx = -inimigo->coordInimigo.dx;
+        inimigo->coordInimigo.dy = -inimigo->coordInimigo.dy;
+        if (deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
+        { // anda contrário, direita/esquerda
+            move(&inimigo->coordInimigo, matriz, inimigo->letra);
+        }
+        else
+        {
+            // Volta para a direção que veio
+            inimigo->coordInimigo.dx = -inimigo->ultimoMovimentoX;
+            inimigo->coordInimigo.dx = -inimigo->ultimoMovimentoY;
+            if (deveMoverInimigo(inimigo, player, matriz, base, qtdInimigo))
+            {
+                move(&inimigo->coordInimigo, matriz, inimigo->letra);
+            }
+        }
     }
 }
 
@@ -403,24 +477,25 @@ int leMapa(char nomeDoArquivo[30], char *matriz, int *qtdInimigos)
     return erro;
 }
 
-void passaNivel(char fase[], char* nivel){
+void passaNivel(char fase[], char *nivel)
+{
 
-    strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
-	strncat(fase, nivel, 1); // Concatena o nome do arquivo com o nivel
-	strcat(fase, ".txt");				   // Concatena o nome do arquivo com a extensao
+    strcpy(fase, "src/fases/mapa"); // Copia o nome do arquivo para a variavel
+    strncat(fase, nivel, 1);        // Concatena o nome do arquivo com o nivel
+    strcat(fase, ".txt");           // Concatena o nome do arquivo com a extensao
 }
 
-void inicializaNivel(char *matriz, char fase[], GAMESTATUS *estadoDoJogo, TIPO_INIMIGO inimigos[], TIPO_PLAYER *player, BASE *base, int *qtdInimigos){
+void inicializaNivel(char *matriz, char fase[], GAMESTATUS *estadoDoJogo, TIPO_INIMIGO inimigos[], TIPO_PLAYER *player, BASE *base, int *qtdInimigos)
+{
 
     passaNivel(fase, &estadoDoJogo->nivel);
-	leMapa(fase, matriz, qtdInimigos); // Leitura do mapa do jogo
-    inicializaPlayer(player); // Funcao para inicializar o player com valores iniciais
+    leMapa(fase, matriz, qtdInimigos); // Leitura do mapa do jogo
+    inicializaPlayer(player);          // Funcao para inicializar o player com valores iniciais
     inicializaBase(base);
     for (int i = 0; i < MAX_INIMIGOS; i++)
-	{
-		inicializaInimigo(&inimigos[i]);
-	}
-    
+    {
+        inicializaInimigo(&inimigos[i]);
+    }
 }
 
 // Funcao que verifica a tela atual do jogo e muda de acordo com a situacao
@@ -510,7 +585,7 @@ void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar, GAMESTATUS *estado
         if (IsKeyPressed(KEY_N)) // Carrega o proximo nivel
         {
             estadoDoJogo->nivel++;
-            //inicializaNivel()
+            // inicializaNivel()
             *telaAtual = GAMEPLAY;
         }
 
@@ -562,23 +637,12 @@ int leEstado(char nomeDoArquivo[30], GAMESTATUS *gameStatus)
     return erro;
 }
 
-
-void passaNivel(char fase[], char *nivel)
-{
-
-    strcpy(fase, "src/fases/mapa"); // Copia o nome do arquivo para a variavel
-    strncat(fase, nivel, 1);        // Concatena o nome do arquivo com o nivel
-    strcat(fase, ".txt");           // Concatena o nome do arquivo com a extensao
-}
-
 // Funcao que desenha na tela
 void desenha(int coordX, int coordY, Color cor)
 {
 
     DrawRectangle(coordX * LADO, coordY * LADO, LADO, LADO, cor); // Desenha um retangulo
 }
-
-
 
 void desenhaMapa(char *matriz, TIPO_PLAYER *player, TIPO_INIMIGO *inimigo, BASE *base)
 {

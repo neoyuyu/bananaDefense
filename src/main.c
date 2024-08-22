@@ -17,7 +17,7 @@ int main(void)
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
 	estadoDoJogo.nivel = '2';
-	estadoDoJogo.gamescreen = TITULO;					 // Tela inicial do jogo
+	estadoDoJogo.gamescreen = TITULO; // Tela inicial do jogo
 
 	char fase[30] = {};
 
@@ -37,9 +37,8 @@ int main(void)
 
 	// Inicializar os inimigos pela primeira vez
 	TIPO_INIMIGO inimigo[MAX_INIMIGOS] = {}; // Arranjo de inimigos da estrutura TIPO_INIMIGO
-	
-	inicializaNivel(&matriz[0][0], &fase[0], &estadoDoJogo, inimigo, &player, &base, &qtdInimigos);
 
+	inicializaNivel(&matriz[0][0], &fase[0], &estadoDoJogo, inimigo, &player, &base, &qtdInimigos);
 
 	// Inicializacoes rayLib
 	InitWindow(LARGURA, ALTURA, "Defense"); // Inicializa janela com certo tamanho e titulo
