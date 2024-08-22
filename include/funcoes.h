@@ -501,7 +501,7 @@ void centerWindow(float windowWidth, float windowHeight)
 }
 
 // Funcao que verifica a tela atual do jogo e muda de acordo com a situacao
-void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar)
+void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar, GAMESTATUS *estadoDoJogo)
 {
     // Modifica a tela atual de acordo com a situacao do jogo
     switch (*telaAtual)
@@ -540,6 +540,7 @@ void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar)
         {
             *telaAtual = MENU;
         }
+        
     }
     break;
 
@@ -572,6 +573,21 @@ void verificaTelaJogo(GAMESCREEN *telaAtual, int *deveFechar)
         }
         if (IsKeyPressed(KEY_R)) // Reinicia o jogo
         {
+            *telaAtual = GAMEPLAY;
+        }
+
+        if (IsKeyPressed(KEY_V)) // Volta ao titulo
+        {
+            *telaAtual = TITULO;
+        }
+    }
+    break;
+
+    case VITORIA: // Tela de vitoria, onde o jogador pode retornar ao titulo
+    {
+        if (IsKeyPressed(KEY_N)) // Carrega o proximo nivel
+        {
+            estadoDoJogo->nivel++;
             *telaAtual = GAMEPLAY;
         }
 
@@ -621,6 +637,13 @@ int leEstado(char nomeDoArquivo[30], GAMESTATUS *gameStatus)
         fclose(arq);
 
     return erro;
+}
+
+void passaNivel(char fase[], char* nivel){
+
+    strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
+	strncat(fase, nivel, 1); // Concatena o nome do arquivo com o nivel
+	strcat(fase, ".txt");				   // Concatena o nome do arquivo com a extensao
 }
 
 // Funcao que desenha na tela

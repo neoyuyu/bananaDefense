@@ -20,11 +20,12 @@ int main(void)
 	estadoDoJogo.nivel = '2';
 
 	char fase[30] = {};
-	// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
+	/*// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
 	strcpy(fase, "src/fases/mapa");		   // Copia o nome do arquivo para a variavel
 	strncat(fase, &estadoDoJogo.nivel, 1); // Concatena o nome do arquivo com o nivel
 	strcat(fase, ".txt");				   // Concatena o nome do arquivo com a extensao
-
+	*/
+	
 	// Informações sobre o jogo
 	char matriz[ALTURA / LADO][LARGURA / LADO] = {}; // Esta matriz representa o mapa do jogo
 	int recursosColetados = 0;						 // Recursos coletados pelo jogador
@@ -34,6 +35,7 @@ int main(void)
 
 	int deveFechar = 0; // Variavel para fechar o jogo
 
+	passaNivel(fase, &estadoDoJogo.nivel);
 	leMapa(fase, &matriz[0][0], &qtdInimigos); // Leitura do mapa do jogo
 
 	// Inicializar o player pela primeira vez
@@ -67,7 +69,7 @@ int main(void)
 
 		controleJogador(&player, &matriz[0][0]); // Verificacao dos controles do jogador
 
-		verificaTelaJogo(&telaAtual, &deveFechar); // Verifica a tela atual do jogo e muda conforme a tecla pressionada
+		verificaTelaJogo(&telaAtual, &deveFechar, &estadoDoJogo); // Verifica a tela atual do jogo e muda conforme a tecla pressionada
 
 		verificaVidas(&base, &player, &telaAtual); // Verifica as vidas do jogador e da base
 
@@ -148,7 +150,9 @@ int main(void)
 
 			DrawRectangle(0, 0, LARGURA, ALTURA, GREEN); // Fundo da tela de vitoria
 			DrawText("VITORIA", LARGURA / 2 - 270, ALTURA / 2 - 150, 100, RAYWHITE);
-			DrawText("Pressione enter para ir ao título", LARGURA / 2 - 400, ALTURA / 2 - 50, 50, RED);
+			DrawText("N - Proximo nivel", LARGURA / 2 - 400, ALTURA / 2 - 50, 50, RED);
+			DrawText("V - Voltar ao Menu", LARGURA / 2 - 225, ALTURA / 2 - 100, 50, RED);
+
 		}
 
 		default:
