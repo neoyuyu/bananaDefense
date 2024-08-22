@@ -274,7 +274,8 @@ void move(COORDENADAS *entidade, char *matriz, char letra)
 {
     //  Realiza a movimentação
     matriz += entidade->x + entidade->y * (LARGURA / LADO);
-    *matriz = ' ';
+    if (*matriz != 'O')
+        *matriz = ' ';
 
     entidade->x = entidade->x + entidade->dx;
     entidade->y += entidade->dy;
