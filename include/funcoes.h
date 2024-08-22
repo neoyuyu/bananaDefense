@@ -177,7 +177,7 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
         //Deslocamento no eixo Y
         if (entidade->coordPlayer.dy == 1 || entidade->coordPlayer.dy == -1) {
             if (entidade->coordPlayer.dy == -1) {
-                for (i=0; i<entidade->coordPlayer.y; i++) {
+                for (i=entidade->coordPlayer.y -1; i >=0 ; i--) {
                     if (matriz[i * (LARGURA/LADO) + entidade->coordPlayer.x] == 'H') {
                         vaiy = i;
                         matriz[i * (LARGURA/LADO) - entidade->coordPlayer.x] = ' ';
@@ -197,7 +197,7 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
         //Deslocamento no eixo X
         if (entidade->coordPlayer.dx == 1 || entidade->coordPlayer.dx == -1) {
             if (entidade->coordPlayer.dx == 1) {
-                for (i=0; i<LARGURA/LADO; i++) {
+                for (i=entidade->coordPlayer.x + 1; i<LARGURA/LADO; i++) {
                     if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H') {
                         vaix = i;
                         matriz[entidade->coordPlayer.y * (LARGURA/LADO) - i] = ' ';
@@ -205,7 +205,7 @@ int deveMoverPlayer (TIPO_PLAYER *entidade, char *matriz)
                 }
             }
              else if (entidade->coordPlayer.dx == -1) {
-                for (i=0; i<entidade->coordPlayer.x; i++){
+                for (i=entidade->coordPlayer.x -1; i>=0; i--){
                     if (matriz[entidade->coordPlayer.y * (LARGURA/LADO) + i] == 'H'){
                         vaix = i;
                         matriz[entidade->coordPlayer.y * (LARGURA/LADO) - i] = ' ';
