@@ -29,6 +29,7 @@ typedef struct
     COORDENADAS coordPlayer; // Coordenadas do jogador
     Color cor;               // Cor do jogador
     char letra;              // Letra que o jogador representa no mapa
+    int vidas;               // Vidas do jogador
 
 } TIPO_PLAYER;
 
@@ -40,6 +41,7 @@ typedef struct
     int ultimoMovimentoX;     // Ultima direcao de movimento
     int ultimoMovimentoY;     // Ultima direcao de movimento
     double timer;             // Timer para movimentacao com delay
+    int vidas;                // Vida do inimigo
     Color cor;                // Cor do inimigo
     char letra;               // Letra que o inimigo representa no mapa
 
@@ -50,6 +52,7 @@ typedef struct
 
     COORDENADAS coordBase; // Coordenadas da base
     Color cor;             // Cor da base
+    int vidas;             // Vidas da base
 
 } BASE;
 
@@ -66,7 +69,7 @@ typedef struct
 // Estrutura enumerada GAMESCREEN representa as telas do jogo
 typedef enum
 {
-    LOGO = 0,
+
     TITULO,
     MENU,
     GAMEPLAY,
