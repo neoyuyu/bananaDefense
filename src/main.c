@@ -6,7 +6,6 @@
 #include <time.h>
 #include <string.h>
 
-
 // Definição de cores para uso em todo o programa
 #define COLOR_WHITE \
 	(Color) { 255, 255, 255, 255 }
@@ -17,7 +16,7 @@ int main(void)
 
 	// Leitura do arquivo de fases
 	GAMESTATUS estadoDoJogo;
-	estadoDoJogo.nivel = '2';
+	estadoDoJogo.nivel = '0';
 
 	char fase[30] = {};
 	/*// Faz com que o jogo leia o arquivo da fase correspondente ao nivel
@@ -25,7 +24,7 @@ int main(void)
 	strncat(fase, &estadoDoJogo.nivel, 1); // Concatena o nome do arquivo com o nivel
 	strcat(fase, ".txt");				   // Concatena o nome do arquivo com a extensao
 	*/
-	
+
 	// Informações sobre o jogo
 	char matriz[ALTURA / LADO][LARGURA / LADO] = {}; // Esta matriz representa o mapa do jogo
 	int recursosColetados = 0;						 // Recursos coletados pelo jogador
@@ -92,25 +91,21 @@ int main(void)
 			for (int i = 0; i < MAX_INIMIGOS; i++)
 			{
 				if (inimigo[i].vidas > 0)
-				{
-					// printf("%d", inimigo[i].vidas);
-					moveInimigo(&inimigo[i], &matriz[0][0], &base, &qtdInimigos);
-				}
+					moveInimigo(&inimigo[i], &player, &matriz[0][0], &base, &qtdInimigos);
 			}
-
 
 			if (IsKeyPressed(KEY_G))
 			{
-					if (player.recursos > 0)
-					{
-						matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
-						player.recursos--;
-					}
+				if (player.recursos > 0)
+				{
+					matriz[player.coordPlayer.y][player.coordPlayer.x] = 'O';
+					player.recursos--;
+				}
 			}
 
 			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 5, 20, BLACK); // Exibe a quantidade de recursos coletados
-			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	   // Exibe a quantidade de vidas do jogador
-			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		   // Exibe a quantidade de vidas da base
+			DrawText(TextFormat("Vidas P: %d", player.vidas), 150, 5, 20, BLACK);	 // Exibe a quantidade de vidas do jogador
+			DrawText(TextFormat("Vidas B: %d", base.vidas), 290, 5, 20, BLACK);		 // Exibe a quantidade de vidas da base
 		}
 		break;
 
@@ -152,7 +147,6 @@ int main(void)
 			DrawText("VITORIA", LARGURA / 2 - 270, ALTURA / 2 - 150, 100, RAYWHITE);
 			DrawText("N - Proximo nivel", LARGURA / 2 - 400, ALTURA / 2 - 50, 50, RED);
 			DrawText("V - Voltar ao Menu", LARGURA / 2 - 225, ALTURA / 2 - 100, 50, RED);
-
 		}
 
 		default:
