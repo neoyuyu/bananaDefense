@@ -233,17 +233,13 @@ int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
     }
     return 1;
 }
-
-// Funcao que verifica se a entidade deve mover. Retorna 1 se deve mover, 0 se nao deve mover
-int deveMoverInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo)
-{
-    // Função para calcular a distância entre uma entidade e a base
-    float distanciaAteBase(COORDENADAS * entidade, BASE * base)
-    {
+// Função para calcular a distância entre uma entidade e a base
+    float distanciaAteBase(COORDENADAS * entidade, BASE * base){
         int distanciaX = abs(entidade->x - base->coordBase.x);
         int distanciaY = abs(entidade->y - base->coordBase.y);
         return (float)hypot(distanciaX, distanciaY);
     }
+    
 
     void processarInimigos(TIPO_INIMIGO * inimigos, int quantidadeInimigos, TIPO_PLAYER *player, char *matriz, BASE *base, int *qtdInimigo)
     {
@@ -332,27 +328,27 @@ int deveMoverInimigo(TIPO_INIMIGO *inimigo, TIPO_PLAYER *player, char *matriz, B
         }
 
         // Verifica se a entidade colidiu com a base
-        if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'S')
+        if (*(matrizTemporaria + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'S')
         {
             *qtdInimigo = *qtdInimigo - 1;                                                  // Quantidade de inimigos diminui
             base->vidas--;                                                                  // Vida da base diminui
             inimigo->vidas--;                                                               // Inimigo vidas diminui
-            matriz += inimigo->coordInimigo.x + inimigo->coordInimigo.y * (LARGURA / LADO); // Matriz recebe a posicao do inimigo
-            *matriz = ' ';                                                                  // Desenha espaco em branco na posicao do inimigo
+            matrizTemporaria += inimigo->coordInimigo.x + inimigo->coordInimigo.y * (LARGURA / LADO); // Matriz recebe a posicao do inimigo
+            *matrizTemporaria = ' ';                                                                  // Desenha espaco em branco na posicao do inimigo
 
             return 0; // Inimigo nao se move para não apagar base
         }
 
         // Verifica se a entidade colidiu com algum recurso
-        if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'R')
+        if (*(matrizTemporaria + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'R')
             return 0;
 
         // Verifica se a entidade colidiu com algum inimigo
-        if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'M')
+        if (*(matrizTemporaria + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'M')
             return 0;
 
         // Verifica se a entidade colidiu com jogador, inimigo perde vida?
-        if (*(matriz + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'J')
+        if (*(matrizTemporaria + (inimigo->coordInimigo.x + inimigo->coordInimigo.dx) + (inimigo->coordInimigo.y + inimigo->coordInimigo.dy) * (LARGURA / LADO)) == 'J')
             return 0;
 
         return 1;
