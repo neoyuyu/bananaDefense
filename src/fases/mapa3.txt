@@ -1,4 +1,5 @@
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+<<<<<<< HEAD
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
@@ -28,3 +29,34 @@ WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+=======
+W      M                  M                   M            W
+W WWWWWWWWWWWWWWWWWWWWWWWWWWWWWHWWWWWWWWWWWWWWWWWWWWWWWWWWHW
+W W                W            W                          W
+W W                W            W            R             W
+WMW       R        W            W                          W
+W W                W            W                          W
+W W                W            W                          W
+W W                H            H                          W
+W W                WWWWWWWWWWWWWW                          W
+W W                             W                          W
+W W                             W                          W
+W W                             W                          W
+W W                             W                          W
+W W                             W                          W
+W W                             W                          W
+WMW                             W                          W
+W W                             W                          W
+W W        R                    W                          W
+W W                             W                          W
+W W                             W                          W
+W W       WWWWWWWWWWWWWWWWWWWWWHWWWWWWWWWWWWWWWWWWWW       W
+W W       W                                  R     W       W
+W W       W                                        W       W
+W W       W       R                                W       W
+W W       W                                       WW       W
+W H       WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW H      WW
+W W                           W                    W       W
+W W             J             W          R         W       W
+WSWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+>>>>>>> cc084cd6cb2e23a3d84c27c19229254ceab67e0f
