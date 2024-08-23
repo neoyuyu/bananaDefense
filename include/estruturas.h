@@ -15,7 +15,6 @@
 // Estrutura enumerada GAMESCREEN representa as telas do jogo
 typedef enum
 {
-
     TITULO,
     MENU,
     GAMEPLAY,
@@ -76,7 +75,6 @@ typedef struct
     int pontuacao;                    // Pontuacao do jogador no jogo
     int vidas;                        // Vidas do jogador
     char nivel;                       // Nivel do jogo
-    GAMESCREEN gamescreen;
+    GAMESCREEN gamescreen;            // Tela atual do jogo
 
 } GAMESTATUS;
-
