@@ -15,7 +15,6 @@
 // Estrutura enumerada GAMESCREEN representa as telas do jogo
 typedef enum
 {
-
     TITULO,
     MENU,
     GAMEPLAY,
@@ -57,6 +56,7 @@ typedef struct
     int vidas;                // Vida do inimigo
     Color cor;                // Cor do inimigo
     char letra;               // Letra que o inimigo representa no mapa
+    int posicoesVisitadas[LARGURA / LADO][ALTURA / LADO]; // Nova matriz para rastrear posições visitadas
 
 } TIPO_INIMIGO;
 
@@ -76,7 +76,6 @@ typedef struct
     int pontuacao;                    // Pontuacao do jogador no jogo
     int vidas;                        // Vidas do jogador
     char nivel;                       // Nivel do jogo
-    GAMESCREEN gamescreen;
+    GAMESCREEN gamescreen;            // Tela atual do jogo
 
 } GAMESTATUS;
-
