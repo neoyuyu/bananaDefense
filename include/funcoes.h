@@ -80,24 +80,23 @@ void verificaVidas(BASE *base, TIPO_PLAYER *player, GAMESCREEN *tela)
 // Funcao que desenha o player na tela
 void desenhaPlayer(TIPO_PLAYER *player, int posx, int posy)
 {
-    player->cor = GREEN; // Atribui cor ao player
-    player->letra = 'J'; // Letra que representa o player
-
-    // Coordenadas do player sao atribuidas
+    // Coordenadas do jogador são atribuídas
     player->coordPlayer.x = posx;
     player->coordPlayer.y = posy;
 
-    DrawRectangle(player->coordPlayer.x * LADO, player->coordPlayer.y * LADO, LADO, LADO, player->cor); // Desenha player
+    // Desenha a textura do jogador na tela
+    DrawTexture(jogadorTexture, player->coordPlayer.x * LADO, player->coordPlayer.y * LADO, GREEN);
 }
 
 // Funcao que desenha o inimigo na tela
 void desenhaInimigo(TIPO_INIMIGO *inimigo, int posx, int posy)
 {
-
-    // Coordenadas do inimigo sao atribuidas
+    // Coordenadas do inimigo são atribuídas
     inimigo->coordInimigo.x = posx;
     inimigo->coordInimigo.y = posy;
-    DrawRectangle(inimigo->coordInimigo.x * LADO, inimigo->coordInimigo.y * LADO, LADO, LADO, inimigo->cor); // Desenha inimigo
+
+    // Desenha a textura do inimigo na tela
+    DrawTexture(inimigoTexture, inimigo->coordInimigo.x * LADO, inimigo->coordInimigo.y * LADO, RED);
 }
 
 void contaRecursos(TIPO_PLAYER *player)
@@ -205,8 +204,7 @@ int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
                         if (matriz[entidade->coordPlayer.y * (LARGURA / LADO) + i] == 'H')
                         {
                             vaix = i;
-                            matriz[entidade->coordPlayer.y * (LARGURA / LADO) - i] = ' ';
-                        }
+                                    }
                     }
                 }
                 else if (entidade->coordPlayer.dx == -1)
@@ -216,7 +214,6 @@ int deveMoverPlayer(TIPO_PLAYER *entidade, char *matriz)
                         if (matriz[entidade->coordPlayer.y * (LARGURA / LADO) + i] == 'H')
                         {
                             vaix = i;
-                            matriz[entidade->coordPlayer.y * (LARGURA / LADO) - i] = ' ';
                         }
                     }
                 }
@@ -713,10 +710,22 @@ int leEstado(char nomeDoArquivo[30], GAMESTATUS *gameStatus)
 }
 
 // Funcao que desenha na tela
-void desenha(int coordX, int coordY, Color cor)
+void desenha(Texture2D textura, int coordX, int coordY, Color cor)
 {
 
-    DrawRectangle(coordX * LADO, coordY * LADO, LADO, LADO, cor); // Desenha um retangulo
+    DrawTexture(textura, coordX * LADO, coordY * LADO, cor); // Desenha um retangulo
+}
+
+void inicializaTexturas()
+{
+    // Carrega as texturas a partir de arquivos
+    jogadorTexture = LoadTexture("src/resources/images/player.png");
+    inimigoTexture = LoadTexture("src/resources/images/inimigo.png");
+    paredeTexture = LoadTexture("src/resources/images/parede.png");
+    recursoTexture = LoadTexture("src/resources/images/recurso.png");
+    obstaculoTexture = LoadTexture("src/resources/images/obstaculo.png");
+    baseTexture = LoadTexture("src/resources/images/base.png");
+    portalTexture = LoadTexture("src/resources/images/portal.png");
 }
 
 void desenhaMapa(char *matriz, TIPO_PLAYER *player, TIPO_INIMIGO *inimigo, BASE *base)
@@ -737,31 +746,38 @@ void desenhaMapa(char *matriz, TIPO_PLAYER *player, TIPO_INIMIGO *inimigo, BASE 
                 break;
 
             case 'R': // Recurso
-                desenha(j, i, PINK);
+                desenha(recursoTexture, j, i, PINK);
                 break;
 
             case 'H': // Buraco/Portal
-                desenha(j, i, YELLOW);
+                desenha(portalTexture, j, i, YELLOW);
                 break;
 
             case 'S': // Base
-                desenha(j, i, BLUE);
+                desenha(baseTexture, j, i, BLUE);
                 base->coordBase.x = j;
                 base->coordBase.y = i;
                 break;
 
             case 'W': // Parede
-                desenha(j, i, PURPLE);
-                break;
-
-            case ' ': // Área de trânsito
-                desenha(j, i, WHITE);
+                desenha(paredeTexture, j, i, PURPLE);
                 break;
 
             case 'O': // Obstáculo
-                desenha(j, i, BLACK);
+                desenha(obstaculoTexture, j, i, BLACK);
                 break;
             }
             matriz++;
         }
+}
+
+void finalizaTexturas()
+{
+    UnloadTexture(jogadorTexture);
+    UnloadTexture(inimigoTexture);
+    UnloadTexture(paredeTexture);
+    UnloadTexture(recursoTexture);
+    UnloadTexture(obstaculoTexture);
+    UnloadTexture(baseTexture);
+    UnloadTexture(portalTexture);
 }

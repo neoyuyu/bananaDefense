@@ -24,7 +24,7 @@ int main(void)
 	// Informações sobre o jogo
 	char matriz[ALTURA / LADO][LARGURA / LADO] = {}; // Esta matriz representa o mapa do jogo
 	int recursosColetados = 0;						 // Recursos coletados pelo jogador
-	int qtdInimigos = 0;							 // Quantidade de inimigos lidos no mapa, eh alterado conforme o jogador elimina os inimigos
+	int qtdInimigos = 1;							 // Quantidade de inimigos lidos no mapa, eh alterado conforme o jogador elimina os inimigos
 
 	int deveFechar = 0; // Variavel para fechar o jogo
 
@@ -45,6 +45,8 @@ int main(void)
 	Image imagemTitulo = LoadImage("src/resources/images/jungle.png"); // Loaded in CPU memory (RAM)
 	Texture2D texturaTitulo = LoadTextureFromImage(imagemTitulo);	   // Image converted to texture, GPU memory (VRAM)
 	UnloadImage(imagemTitulo);										   // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
+
+	inicializaTexturas(); // Inicializa as texturas do jogo
 
 	// Laco principal do jogo
 	while (!deveFechar && !WindowShouldClose()) // Detectar quando o jogador fecha a janela
@@ -87,11 +89,11 @@ int main(void)
 				}
 			}
 
-			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 3, 25, BLACK);   // Exibe a quantidade de recursos coletados
-			DrawText(TextFormat("Vidas P: %d", player.vidas), 186, 3, 25, BLACK);	   // Exibe a quantidade de vidas do jogador
-			DrawText(TextFormat("Vidas B: %d", base.vidas), 346, 3, 25, BLACK);		   // Exibe a quantidade de vidas da base
-			DrawText(TextFormat("Inimigos: %d", qtdInimigos), 890, 3, 25, BLACK);	   // Exibe a quantidade de vidas da base
-			DrawText(TextFormat("Nivel: %c", estadoDoJogo.nivel), 1050, 3, 25, BLACK); // Exibe a quantidade de vidas da base
+			DrawText(TextFormat("Recursos: %d", player.recursos), 10, 0, 25, BLACK);   // Exibe a quantidade de recursos coletados
+			DrawText(TextFormat("Vidas P: %d", player.vidas), 186, 0, 25, BLACK);	   // Exibe a quantidade de vidas do jogador
+			DrawText(TextFormat("Vidas B: %d", base.vidas), 346, 0, 25, BLACK);		   // Exibe a quantidade de vidas da base
+			DrawText(TextFormat("Inimigos: %d", qtdInimigos), 890, 0, 25, BLACK);	   // Exibe a quantidade de vidas da base
+			DrawText(TextFormat("Nivel: %c", estadoDoJogo.nivel), 1050, 0, 25, BLACK); // Exibe a quantidade de vidas da base
 		}
 		break;
 
@@ -145,8 +147,8 @@ int main(void)
 
 	// Descarregar texturas
 	UnloadTexture(texturaTitulo); // Descarrega a textura da tela de titulo
-
-	CloseWindow(); // Fecha a janela e o contexto OpenGL
+	finalizaTexturas();			  // Finaliza as texturas do jogo
+	CloseWindow();				  // Fecha a janela e o contexto OpenGL
 
 	return 0;
 }

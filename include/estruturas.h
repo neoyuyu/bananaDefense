@@ -8,6 +8,14 @@
 #define MAX_INIMIGOS 50
 #define MAX_RECURSOS 50
 
+Texture2D jogadorTexture;
+Texture2D inimigoTexture;
+Texture2D paredeTexture;
+Texture2D recursoTexture;
+Texture2D obstaculoTexture;
+Texture2D baseTexture;
+Texture2D portalTexture;
+
 //----------------------------------------------------------------------------------
 // Definição de estruturas
 //----------------------------------------------------------------------------------
@@ -49,13 +57,13 @@ typedef struct
 typedef struct
 {
 
-    COORDENADAS coordInimigo; // Coordenadas do inimigo
-    int ultimoMovimentoX;     // Ultima direcao de movimento
-    int ultimoMovimentoY;     // Ultima direcao de movimento
-    double timer;             // Timer para movimentacao com delay
-    int vidas;                // Vida do inimigo
-    Color cor;                // Cor do inimigo
-    char letra;               // Letra que o inimigo representa no mapa
+    COORDENADAS coordInimigo;                             // Coordenadas do inimigo
+    int ultimoMovimentoX;                                 // Ultima direcao de movimento
+    int ultimoMovimentoY;                                 // Ultima direcao de movimento
+    double timer;                                         // Timer para movimentacao com delay
+    int vidas;                                            // Vida do inimigo
+    Color cor;                                            // Cor do inimigo
+    char letra;                                           // Letra que o inimigo representa no mapa
     int posicoesVisitadas[LARGURA / LADO][ALTURA / LADO]; // Nova matriz para rastrear posições visitadas
 
 } TIPO_INIMIGO;
