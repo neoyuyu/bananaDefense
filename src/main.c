@@ -76,12 +76,7 @@ int main(void)
 
 			desenhaMapa(&matriz[0][0], &player, &inimigo[0], &base); // Desenha mapa e inicializa inimigos
 
-			// Move os inimigos
-			for (int i = 0; i < MAX_INIMIGOS; i++)
-			{
-				if (inimigo[i].vidas > 0)
-					moveInimigo(&inimigo[i], &player, &matriz[0][0], &base, &qtdInimigos);
-			}
+			processarInimigos (inimigo, qtdInimigos, &player, &matriz[0][0], &base, &qtdInimigos);
 
 			if (IsKeyPressed(KEY_G))
 			{

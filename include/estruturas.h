@@ -57,6 +57,7 @@ typedef struct
     int vidas;                // Vida do inimigo
     Color cor;                // Cor do inimigo
     char letra;               // Letra que o inimigo representa no mapa
+    int posicoesVisitadas[LARGURA / LADO][ALTURA / LADO]; // Nova matriz para rastrear posições visitadas
 
 } TIPO_INIMIGO;
 
